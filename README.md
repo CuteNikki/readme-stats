@@ -37,6 +37,8 @@ Show the version that matches the reader's theme with `<picture>`:
 
 Put two project cards side by side with `width="49%"` on each.
 
+Write commas in the links as `%2C` (`languages=typescript%2Cjava`), at least in `srcset`: GitHub splits `srcset` at commas, so the dark version would get a link that's cut off there.
+
 ## Running it
 
 Copy `.env.example` to `.env` and fill in a GitHub token and the accounts it may draw cards for. Then:
