@@ -77,13 +77,36 @@ function score(l: Language, by: ProfileOptions['by']) {
   return l.size;
 }
 
-function languages(p: Profile, x: number, width: number, { theme, langs, hide, by }: ProfileOptions) {
+/** The languages the card shows, each with its share of them in percent */
+export function topLanguages(p: Profile, { langs, hide, by }: Pick<ProfileOptions, 'langs' | 'hide' | 'by'>) {
   const shown = p.languages
     .filter((l) => !hide.includes(l.name.toLowerCase()))
     .map((l) => ({ ...l, score: score(l, by) }))
     .sort((a, b) => b.score - a.score)
     .slice(0, langs);
   const sum = shown.reduce((s, l) => s + l.score, 0) || 1;
+  return shown.map((l) => ({ ...l, share: (l.score / sum) * 100 }));
+}
+
+/** 75% but 6.7%: a decimal only where it says something */
+export function percent(share: number) {
+  return `${share < 10 ? share.toFixed(1) : Math.round(share)}%`;
+}
+
+/** The last 53 weeks, starting on a Sunday, the way GitHub draws it */
+export function lastYear(days: Day[]) {
+  const last = days.at(-1);
+  if (!last) return [];
+  const end = new Date(`${last.date}T00:00:00Z`);
+  const start = new Date(end);
+  start.setUTCDate(end.getUTCDate() - end.getUTCDay() - 52 * 7);
+  const startIso = start.toISOString().slice(0, 10);
+  return days.filter((d) => d.date >= startIso);
+}
+
+function languages(p: Profile, x: number, width: number, options: ProfileOptions) {
+  const { theme } = options;
+  const shown = topLanguages(p, options);
 
   let out = heading(x, 84, 'Top languages', theme);
   // One bar, a segment each, with a hairline gap between them
@@ -91,7 +114,7 @@ function languages(p: Profile, x: number, width: number, { theme, langs, hide, b
   out += `<clipPath id="bar"><rect x="${x}" y="${barY}" width="${width}" height="8" rx="4"/></clipPath><g clip-path="url(#bar)"><rect x="${x}" y="${barY}" width="${width}" height="8" fill="${theme.line}"/>`;
   let at = x;
   for (const l of shown) {
-    const w = (l.score / sum) * width;
+    const w = (l.share / 100) * width;
     out += `<rect x="${round(at)}" y="${barY}" width="${round(Math.max(w - 2, 0.5))}" height="8" fill="${l.color}"/>`;
     at += w;
   }
@@ -100,10 +123,9 @@ function languages(p: Profile, x: number, width: number, { theme, langs, hide, b
   const rowStep = shown.length > 5 ? 20 : 23;
   shown.forEach((l, i) => {
     const y = 130 + i * rowStep;
-    const pct = (l.score / sum) * 100;
     out += `<circle cx="${x + 4}" cy="${y - 4}" r="4" fill="${l.color}"/>`;
     out += text(x + 16, y, fit(l.name, 13, width - 70), { size: 13, fill: theme.fg });
-    out += text(x + width, y, `${pct < 10 ? pct.toFixed(1) : Math.round(pct)}%`, { size: 13, fill: theme.muted, anchor: 'end' });
+    out += text(x + width, y, percent(l.share), { size: 13, fill: theme.muted, anchor: 'end' });
   });
   return out;
 }
@@ -115,14 +137,8 @@ function levelOf(count: number, max: number) {
 }
 
 function graph(days: Day[], y: number, theme: Theme) {
-  // The last 53 weeks, starting on a Sunday, the way GitHub draws it
-  const last = days.at(-1);
-  if (!last) return { body: '', height: 0 };
-  const end = new Date(`${last.date}T00:00:00Z`);
-  const start = new Date(end);
-  start.setUTCDate(end.getUTCDate() - end.getUTCDay() - 52 * 7);
-  const startIso = start.toISOString().slice(0, 10);
-  const shown = days.filter((d) => d.date >= startIso);
+  const shown = lastYear(days);
+  if (shown.length === 0) return { body: '', height: 0 };
   const year = shown.reduce((s, d) => s + d.count, 0);
   // A day far busier than the rest would otherwise leave every other day pale
   const sorted = shown.map((d) => d.count).filter((c) => c > 0).sort((a, b) => a - b);

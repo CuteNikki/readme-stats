@@ -15,3 +15,10 @@ const bump = db.query<{ count: number }, [string, number]>(
 export function countView(key: string) {
   return bump.get(key, config.viewsStart)!.count;
 }
+
+const read = db.query<{ count: number }, [string]>('SELECT count FROM views WHERE key = ?1');
+
+/** The count as it is, without counting a view: for /stats.json */
+export function viewCount(key: string) {
+  return read.get(key)?.count ?? config.viewsStart;
+}

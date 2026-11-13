@@ -1,6 +1,6 @@
 import { badge } from './src/cards/badge';
 import { bannerCard } from './src/cards/banner';
-import { profileCard, type ProfileOptions } from './src/cards/profile';
+import { lastYear, percent, profileCard, topLanguages, type ProfileOptions } from './src/cards/profile';
 import { repoCard } from './src/cards/repo';
 import { skillsCard, type SkillGroup } from './src/cards/skills';
 import { allowedUser, config } from './src/config';
@@ -9,7 +9,8 @@ import { icon } from './src/icons';
 import { octicon, octicons } from './src/octicons';
 import { group } from './src/svg';
 import { pickTheme, type Theme } from './src/theme';
-import { countView } from './src/views';
+import { streaks } from './src/streak';
+import { countView, viewCount } from './src/views';
 import { preview } from './src/preview';
 
 /**
@@ -82,6 +83,45 @@ const server = Bun.serve({
         by: by === 'bytes' || by === 'repos' ? by : 'mixed',
       };
       return guard(theme, async () => svg(profileCard(await profile(user), options), DATA_AGE, 200, req));
+    },
+
+    // The card's numbers as text: for alt text that says what the card shows,
+    // which a README can only get by being rewritten, e.g. by a daily Action
+    '/stats.json': (req) => {
+      const q = new URL(req.url).searchParams;
+      const user = allowedUser(q.get('user'));
+      if (!user) return Response.json({ error: 'not an account this draws cards for' }, { status: 403 });
+      const by = q.get('by');
+      return profile(user)
+        .then((p) => {
+          const { current, longest, total } = streaks(p.days);
+          const languages = topLanguages(p, {
+            langs: Math.min(Math.max(Number(q.get('langs') ?? 5) || 5, 1), 8),
+            hide: list(q.get('hide')).map((s) => s.toLowerCase()),
+            by: by === 'bytes' || by === 'repos' ? by : 'mixed',
+          });
+          return Response.json(
+            {
+              login: p.login,
+              name: p.name,
+              commits: p.commits,
+              pullRequests: p.pullRequests,
+              issues: p.issues,
+              stars: p.stars,
+              repos: p.repos,
+              streak: { current: current.length, longest: longest.length },
+              contributions: total,
+              lastYear: lastYear(p.days).reduce((sum, d) => sum + d.count, 0),
+              languages: languages.map((l) => ({ name: l.name, share: percent(l.share) })),
+              views: viewCount(user),
+            },
+            { headers: { 'Cache-Control': `public, max-age=${DATA_AGE}` } },
+          );
+        })
+        .catch((error) => {
+          console.error(error);
+          return Response.json({ error: 'GitHub is not answering' }, { status: error instanceof NotFound ? 404 : 502 });
+        });
     },
 
     '/repo/:owner/:name': (req) => {
