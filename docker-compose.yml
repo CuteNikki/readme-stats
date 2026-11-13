@@ -1,0 +1,15 @@
+services:
+  cards:
+    build: .
+    container_name: cards
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /data
+      PORT: 3000
+    ports:
+      - '3000:3000'
+    volumes:
+      # The view counter's count
+      - ./data:/data

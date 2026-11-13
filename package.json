@@ -1,0 +1,21 @@
+{
+  "name": "cards",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch --env-file=.env index.ts",
+    "start": "bun index.ts",
+    "typecheck": "bun check"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.4"
+  },
+  "peerDependencies": {
+    "typescript": "^7"
+  },
+  "dependencies": {
+    "simple-icons": "^16.37.0"
+  },
+  "description": "Stats, badges, skills and project cards for a GitHub profile README, in one matching style",
+  "license": "MIT"
+}
