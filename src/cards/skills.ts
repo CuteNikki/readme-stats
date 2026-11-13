@@ -12,6 +12,8 @@ export interface SkillGroup {
 
 const W = 880;
 const PAD = 28;
+/** Less above and below than at the sides: next to the 11px between groups, 28 looked empty */
+const PAD_Y = 20;
 const LABEL_W = 150;
 const CHIP_H = 32;
 const GAP = 8;
@@ -35,7 +37,7 @@ function chipWidth(label: string, icon: Icon | undefined) {
 
 export function skillsCard(groups: SkillGroup[], theme: Theme, title?: string) {
   const area = W - PAD * 2 - LABEL_W;
-  let y = PAD;
+  let y = PAD_Y;
   let body = '';
   if (title) {
     body += text(PAD, y + 16, title, { size: 15, weight: 800, fill: theme.fg });
@@ -65,5 +67,5 @@ export function skillsCard(groups: SkillGroup[], theme: Theme, title?: string) {
     y = rowY + CHIP_H;
   });
 
-  return doc({ width: W, height: y + PAD, theme, weights: [500, 700, 800], title: title ?? 'Skills', body });
+  return doc({ width: W, height: y + PAD_Y, theme, weights: [500, 700, 800], title: title ?? 'Skills', body });
 }

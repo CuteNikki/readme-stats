@@ -12,8 +12,12 @@ import { pickTheme, type Theme } from './src/theme';
 import { countView } from './src/views';
 import { preview } from './src/preview';
 
-/** Query keys every route takes, so /skills doesn't read them as a group */
-const RESERVED = new Set(['theme', 'title', 'user']);
+/**
+ * Query keys every route takes, so /skills doesn't read them as a group. v does
+ * nothing: bumping it gives a card a new link, which GitHub's image proxy
+ * hasn't cached yet
+ */
+const RESERVED = new Set(['theme', 'title', 'user', 'v']);
 
 /**
  * No stale-while-revalidate: GitHub's image proxy passes these headers on to

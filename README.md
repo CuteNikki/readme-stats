@@ -15,7 +15,7 @@ It replaces separate stats, streak and top-language services with one small Bun 
 | `/banner?label=&title=&subtitle=` | A header for the top of the README |
 | `/views?user=you` | A profile view counter; `since=2026-07` adds when it started counting |
 
-Every card takes `?theme=dark` or `?theme=light`. Open `/` for a preview of everything in both.
+Every card takes `?theme=dark` or `?theme=light`. `v=` does nothing, so changing it gives a card a new link: GitHub's image proxy keeps a card up to the time it says, so after changing the look, bump `v` to show it straight away. Open `/` for a preview of everything in both.
 
 ### Options
 
