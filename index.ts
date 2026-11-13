@@ -122,13 +122,28 @@ const server = Bun.serve({
       if (!user) return problem('not an account this draws cards for', theme, 403);
       const count = countView(user);
       return svg(
-        badge({ theme, label: q.get('label') ?? 'profile views', value: group(count), drawIcon: (x, y, color) => octicon('eye', x, y, 16, color) }),
+        badge({
+          theme,
+          label: q.get('label') ?? 'profile views',
+          value: group(count),
+          note: since(q.get('since')),
+          drawIcon: (x, y, color) => octicon('eye', x, y, 16, color),
+        }),
         0,
       );
     },
   },
   fetch: () => new Response('Not found', { status: 404 }),
 });
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** ?since=2026-07-28 or 2026-07 > "since Jul 2026": the counter can't know when counting started, least of all a count carried over */
+function since(value: string | null) {
+  const match = value?.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
+  const month = match ? MONTHS[Number(match[2]) - 1] : undefined;
+  return month ? `since ${month} ${match![1]}` : undefined;
+}
 
 function badgeRoute(req: Request, iconName: string | undefined) {
   const q = new URL(req.url).searchParams;

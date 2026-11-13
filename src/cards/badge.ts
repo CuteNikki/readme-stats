@@ -9,6 +9,8 @@ export interface BadgeOptions {
   theme: Theme;
   label: string;
   value?: string;
+  /** Quieter text after the value, like when a count started */
+  note?: string;
   icon?: Icon;
   /** Draws its own icon instead, in a 16x16 box at (x, y) */
   drawIcon?: (x: number, y: number, color: string) => string;
@@ -19,7 +21,7 @@ export interface BadgeOptions {
 const H = 34;
 const SIZE = 13;
 
-export function badge({ theme, label, value, icon, drawIcon, color }: BadgeOptions) {
+export function badge({ theme, label, value, note, icon, drawIcon, color }: BadgeOptions) {
   const iconColor = color ? readable(`#${color}`, theme) : icon ? readable(`#${icon.hex}`, theme) : theme.accent;
   let x = 13;
   let body = '';
@@ -38,6 +40,11 @@ export function badge({ theme, label, value, icon, drawIcon, color }: BadgeOptio
     x += 10;
     body += text(x, 22, value, { size: SIZE, weight: 700, fill: theme.accent });
     x += textWidth(value, SIZE);
+    if (note) {
+      x += 8;
+      body += text(x, 22, note, { size: 12, fill: theme.muted });
+      x += textWidth(note, 12);
+    }
   }
   const width = Math.ceil(x + 14);
   return doc({
@@ -45,8 +52,8 @@ export function badge({ theme, label, value, icon, drawIcon, color }: BadgeOptio
     height: H,
     theme,
     // 700 for the value, and for the letters on Adobe's tiles
-    weights: value || icon?.ownColors ? [500, 700] : [500],
-    title: value ? `${label}: ${value}` : label,
+    weights: [500, ...(value || icon?.ownColors ? [700 as const] : []), ...(value && note ? [400 as const] : [])],
+    title: value ? `${label}: ${value}${note ? ` ${note}` : ''}` : label,
     body,
     radius: 10,
   });
