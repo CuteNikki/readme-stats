@@ -15,14 +15,20 @@ import { preview } from './src/preview';
 /** Query keys every route takes, so /skills doesn't read them as a group */
 const RESERVED = new Set(['theme', 'title', 'user']);
 
-function svg(body: string, maxAge: number, status = 200) {
-  return new Response(body, {
-    status,
-    headers: {
-      'Content-Type': 'image/svg+xml; charset=utf-8',
-      'Cache-Control': maxAge > 0 ? `public, max-age=${maxAge}, stale-while-revalidate=86400` : 'no-cache, no-store, must-revalidate, max-age=0',
-    },
-  });
+/**
+ * No stale-while-revalidate: GitHub's image proxy passes these headers on to
+ * the browser, which then kept showing a card up to a day old. The ETag lets
+ * a cache ask whether a card changed and get a 304 back if it didn't.
+ */
+function svg(body: string, maxAge: number, status = 200, req?: Request) {
+  const etag = `"${Bun.hash(body).toString(36)}"`;
+  const headers = {
+    'Content-Type': 'image/svg+xml; charset=utf-8',
+    'Cache-Control': maxAge > 0 ? `public, max-age=${maxAge}` : 'no-cache, no-store, must-revalidate, max-age=0',
+    ETag: etag,
+  };
+  if (status === 200 && maxAge > 0 && req?.headers.get('If-None-Match') === etag) return new Response(null, { status: 304, headers });
+  return new Response(body, { status, headers });
 }
 
 /** Errors are pictures too, or a README would show a broken image */
@@ -30,8 +36,10 @@ function problem(message: string, theme: Theme, status: number) {
   return svg(badge({ theme, label: message, drawIcon: (x, y) => octicon('eye', x, y, 16, theme.muted) }), 60, status);
 }
 
-const dataAge = () => config.cacheMinutes * 60;
-const DAY = 86_400;
+/** Cards from GitHub's numbers: they change all day */
+const DATA_AGE = 600;
+/** Cards that only change with their link or a new version of this */
+const STATIC_AGE = 3600;
 
 function list(value: string | null) {
   return (value ?? '')
@@ -69,7 +77,7 @@ const server = Bun.serve({
         hide: list(q.get('hide')).map((s) => s.toLowerCase()),
         by: by === 'bytes' || by === 'repos' ? by : 'mixed',
       };
-      return guard(theme, async () => svg(profileCard(await profile(user), options), dataAge()));
+      return guard(theme, async () => svg(profileCard(await profile(user), options), DATA_AGE, 200, req));
     },
 
     '/repo/:owner/:name': (req) => {
@@ -78,7 +86,7 @@ const server = Bun.serve({
       const owner = allowedUser(req.params.owner);
       if (!owner) return problem('not an account this draws cards for', theme, 403);
       return guard(theme, async () =>
-        svg(repoCard(await repo(owner, req.params.name), { theme, label: q.get('label') ?? undefined, description: q.get('desc') ?? undefined }), dataAge()),
+        svg(repoCard(await repo(owner, req.params.name), { theme, label: q.get('label') ?? undefined, description: q.get('desc') ?? undefined }), DATA_AGE, 200, req),
       );
     },
     '/repo/:name': (req) => Response.redirect(new URL(`/repo/${config.defaultUser}/${req.params.name}${new URL(req.url).search}`, req.url).href, 301),
@@ -103,7 +111,7 @@ const server = Bun.serve({
         });
       }
       if (groups.length === 0) return problem('add groups, as ?languages=typescript,java', theme, 400);
-      return svg(skillsCard(groups, theme, q.get('title') ?? undefined), DAY);
+      return svg(skillsCard(groups, theme, q.get('title') ?? undefined), STATIC_AGE, 200, req);
     },
 
     '/banner': (req) => {
@@ -111,7 +119,9 @@ const server = Bun.serve({
       const theme = pickTheme(q.get('theme'));
       return svg(
         bannerCard({ theme, title: q.get('title') ?? `Hey, I'm ${config.defaultUser}`, subtitle: q.get('subtitle') ?? undefined, label: q.get('label') ?? undefined }),
-        DAY,
+        STATIC_AGE,
+        200,
+        req,
       );
     },
 
@@ -162,7 +172,9 @@ function badgeRoute(req: Request, iconName: string | undefined) {
       value: q.get('value') ?? undefined,
       color: color && /^[0-9a-f]{3,6}$/i.test(color) ? color : undefined,
     }),
-    DAY,
+    STATIC_AGE,
+    200,
+    req,
   );
 }
 

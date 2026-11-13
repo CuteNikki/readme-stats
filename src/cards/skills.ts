@@ -42,10 +42,13 @@ export function skillsCard(groups: SkillGroup[], theme: Theme, title?: string) {
     y += 42;
   }
 
+  // The divider between two groups sits exactly halfway between their chips
+  const between = 11;
   groups.forEach((group, gi) => {
     if (gi > 0) {
-      body += `<line x1="${PAD}" y1="${y - GAP}" x2="${W - PAD}" y2="${y - GAP}" stroke="${theme.line}"/>`;
-      y += GAP;
+      y += between;
+      body += `<line x1="${PAD}" y1="${y}" x2="${W - PAD}" y2="${y}" stroke="${theme.line}"/>`;
+      y += between;
     }
     body += text(PAD, y + 20.5, group.name.toUpperCase(), { size: 11, weight: 700, fill: theme.muted, spacing: 1.2 });
     let x = 0;
@@ -59,8 +62,8 @@ export function skillsCard(groups: SkillGroup[], theme: Theme, title?: string) {
       body += chip(PAD + LABEL_W + x, rowY, skill.label, skill.icon, theme);
       x += width + GAP;
     }
-    y = rowY + CHIP_H + GAP * 2;
+    y = rowY + CHIP_H;
   });
 
-  return doc({ width: W, height: y - GAP * 2 + PAD, theme, weights: [500, 700, 800], title: title ?? 'Skills', body });
+  return doc({ width: W, height: y + PAD, theme, weights: [500, 700, 800], title: title ?? 'Skills', body });
 }
