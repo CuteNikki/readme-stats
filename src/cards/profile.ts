@@ -151,7 +151,8 @@ function graph(days: Day[], y: number, theme: Theme) {
   });
 
   // Less ... more
-  const legendY = top + 7 * (cell + gap) + 16;
+  // Close under the graph, as GitHub has it
+  const legendY = top + 7 * (cell + gap) + 7;
   const moreX = W - PAD - textWidth('more', 10);
   const lx = moreX - 8 - 5 * 13 + 3;
   out += text(lx - 8, legendY + 9, 'less', { size: 10, fill: theme.muted, anchor: 'end' });
