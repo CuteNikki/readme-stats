@@ -130,9 +130,10 @@ function graph(days: Day[], y: number, theme: Theme) {
 
   const gap = 3;
   const cell = (W - PAD * 2 - 52 * gap) / 53;
-  const top = y + 44;
-  let out = heading(PAD, y + 20, 'Last year', theme);
-  out += text(W - PAD, y + 20, `${group(year)} contributions`, { size: 12, fill: theme.muted, anchor: 'end' });
+  // As much room under the divider as the columns get under theirs, and a bit more before the graph
+  const top = y + 62;
+  let out = heading(PAD, y + 30, 'Last year', theme);
+  out += text(W - PAD, y + 30, `${group(year)} contributions`, { size: 12, fill: theme.muted, anchor: 'end' });
 
   let lastMonth = -1;
   shown.forEach((d, i) => {
