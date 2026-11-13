@@ -154,4 +154,4 @@ function badgeRoute(req: Request, iconName: string | undefined) {
 // Fetched once now, so the first visitor doesn't wait on GitHub either
 profile(config.defaultUser.toLowerCase()).catch((error) => console.error('Loading the profile failed:', error));
 
-console.log(`Cards on http://localhost:${server.port}`);
+console.log(`readme-stats on http://localhost:${server.port}`);

@@ -1,4 +1,4 @@
-# cards
+# readme-stats
 
 Stats, badges, a skills grid and project cards for a GitHub profile README, all in one matching style and in a dark and a light version.
 
@@ -30,8 +30,8 @@ Show the version that matches the reader's theme with `<picture>`:
 
 ```html
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://cards.example.com/card?user=you&theme=dark">
-  <img src="https://cards.example.com/card?user=you&theme=light" alt="GitHub stats" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="https://stats.example.com/card?user=you&theme=dark">
+  <img src="https://stats.example.com/card?user=you&theme=light" alt="GitHub stats" width="100%">
 </picture>
 ```
 

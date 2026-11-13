@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "cards",
+      "name": "readme-stats",
       "dependencies": {
         "simple-icons": "^16.37.0",
       },

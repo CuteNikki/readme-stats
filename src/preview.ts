@@ -19,12 +19,12 @@ export function preview() {
   <div class="dark"><img src="${path}&theme=dark"></div><div class="light"><img src="${path}&theme=light"></div></div></section>`,
     )
     .join('\n');
-  return `<!doctype html><meta charset="utf-8"><title>Cards</title>
+  return `<!doctype html><meta charset="utf-8"><title>readme-stats</title>
 <style>
 body{margin:0;padding:24px;font:14px ui-monospace,monospace;background:#0b0b0f;color:#ededf2}
 h2{font-size:13px;font-weight:600}code{color:#a78bfa;font-weight:400;word-break:break-all}
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pair>div{padding:20px;border-radius:12px;overflow:auto}
 .dark{background:#0d1117}.light{background:#fff}img{max-width:100%}
 </style>
-<h1>Cards</h1>${rows}`;
+<h1>readme-stats</h1>${rows}`;
 }

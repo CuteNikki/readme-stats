@@ -1,7 +1,7 @@
 services:
-  cards:
+  readme-stats:
     build: .
-    container_name: cards
+    container_name: readme-stats
     restart: unless-stopped
     env_file:
       - .env

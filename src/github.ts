@@ -6,7 +6,7 @@ export class NotFound extends Error {}
 async function graphql<T>(query: string, variables: Record<string, unknown> = {}): Promise<T> {
   const response = await fetch('https://api.github.com/graphql', {
     method: 'POST',
-    headers: { Authorization: `bearer ${config.token}`, 'Content-Type': 'application/json', 'User-Agent': 'cards' },
+    headers: { Authorization: `bearer ${config.token}`, 'Content-Type': 'application/json', 'User-Agent': 'readme-stats' },
     body: JSON.stringify({ query, variables }),
   });
   if (!response.ok) throw new Error(`GitHub answered ${response.status}: ${await response.text()}`);
