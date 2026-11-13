@@ -66,7 +66,7 @@ function streak(p: Profile, x: number, width: number, theme: Theme) {
   const half = width / 2;
   out += text(x, 202, 'LONGEST', { size: 10, weight: 700, fill: theme.muted, spacing: 1 });
   out += text(x, 222, `${longest.length} days`, { size: 14, weight: 700, fill: theme.fg });
-  out += text(x + half, 202, 'ALL TIME', { size: 10, weight: 700, fill: theme.muted, spacing: 1 });
+  out += text(x + half, 202, 'CONTRIBUTIONS', { size: 10, weight: 700, fill: theme.muted, spacing: 1 });
   out += text(x + half, 222, group(total), { size: 14, weight: 700, fill: theme.fg });
   return out;
 }
