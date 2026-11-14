@@ -27,15 +27,23 @@ interface DocOptions {
   weights: Weight[];
   title: string;
   body: string;
+  /** The card's own corner rounding, unless the style sets one */
   radius?: number;
 }
 
-export function doc({ width, height, style, weights, title, body, radius = 14 }: DocOptions) {
+/** The corner rounding a card is drawn with */
+export function cornerRadius(style: Style, own = 14) {
+  return style.radius ?? own;
+}
+
+export function doc({ width: w, height: h, style, weights, title, body, radius }: DocOptions) {
   const { theme, font } = style;
+  // Sizes can make a card's edges fall between pixels
+  const [width, height] = [Math.ceil(round(w)), Math.ceil(round(h))];
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none" role="img" aria-label="${esc(title)}">
 <title>${esc(title)}</title>
 <style>${font.css(weights)}text{font-family:${font.family}}</style>
-<rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="${radius}" fill="${theme.bg}" stroke="${theme.border}"/>
+<rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="${cornerRadius(style, radius)}" fill="${theme.bg}"${style.border ? ` stroke="${theme.border}"` : ''}/>
 ${body}
 </svg>`;
 }
@@ -50,7 +58,7 @@ interface TextOptions {
 }
 
 export function text(x: number, y: number, content: string | number, { size, weight = 400, fill, anchor = 'start', spacing, opacity }: TextOptions) {
-  return `<text x="${round(x)}" y="${round(y)}" font-size="${size}" font-weight="${weight}" fill="${fill}"${anchor === 'start' ? '' : ` text-anchor="${anchor}"`}${spacing ? ` letter-spacing="${spacing}"` : ''}${opacity === undefined ? '' : ` opacity="${opacity}"`}>${esc(content)}</text>`;
+  return `<text x="${round(x)}" y="${round(y)}" font-size="${round(size)}" font-weight="${weight}" fill="${fill}"${anchor === 'start' ? '' : ` text-anchor="${anchor}"`}${spacing ? ` letter-spacing="${spacing}"` : ''}${opacity === undefined ? '' : ` opacity="${opacity}"`}>${esc(content)}</text>`;
 }
 
 export function round(n: number) {

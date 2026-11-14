@@ -40,7 +40,7 @@ function svg(body: string, maxAge: number, status = 200, req?: Request) {
 
 /** Errors are pictures too, or a README would show a broken image */
 function problem(message: string, style: Style, status: number) {
-  return svg(badge({ style, label: message, drawIcon: (x, y) => octicon('eye', x, y, 16, style.theme.muted) }), 60, status);
+  return svg(badge({ style, label: message, drawIcon: (x, y, _, size) => octicon('eye', x, y, size, style.theme.muted) }), 60, status);
 }
 
 /** Cards from GitHub's numbers: they change all day */
@@ -197,7 +197,7 @@ const server = Bun.serve({
             label: q.get('label') ?? 'profile views',
             value: group(count),
             note: since(q.get('since')),
-            drawIcon: (x, y, color) => octicon('eye', x, y, 16, color),
+            drawIcon: (x, y, color, size) => octicon('eye', x, y, size, color),
           }),
           0,
         );
@@ -231,7 +231,7 @@ function badgeRoute(req: Request, iconName: string | undefined) {
       badge({
         style,
         icon: found,
-        drawIcon: own && ((x, y, c) => octicon(own, x, y, 16, c)),
+        drawIcon: own && ((x, y, c, size) => octicon(own, x, y, size, c)),
         label: q.get('label') ?? found?.title ?? 'badge',
         value: q.get('value') ?? undefined,
         color: color ? hexColor(color) : undefined,

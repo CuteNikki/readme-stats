@@ -10,5 +10,5 @@ export const octicons = {
 
 /** An octicon at (x, y), size px square */
 export function octicon(name: keyof typeof octicons, x: number, y: number, size: number, fill: string) {
-  return `<path transform="translate(${x} ${y}) scale(${size / 16})" d="${octicons[name]}" fill="${fill}"/>`;
+  return `<path transform="translate(${Math.round(x * 100) / 100} ${Math.round(y * 100) / 100}) scale(${size / 16})" d="${octicons[name]}" fill="${fill}"/>`;
 }

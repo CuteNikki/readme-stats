@@ -3,8 +3,8 @@
 
 import type { Icon } from '../icons';
 import type { Font } from '../fonts';
-import type { Style } from '../style';
-import { doc, text } from '../svg';
+import { scales, type Style } from '../style';
+import { doc, round, text } from '../svg';
 import { readable } from '../theme';
 
 export interface SkillGroup {
@@ -13,62 +13,76 @@ export interface SkillGroup {
 }
 
 const W = 880;
-const PAD = 28;
-/** Less above and below than at the sides: next to the 11px between groups, 28 looked empty */
-const PAD_Y = 20;
-const LABEL_W = 150;
-const CHIP_H = 32;
-const GAP = 8;
-const SIZE = 12.5;
+/** The widest the group names' column gets before a long name is cut off */
+const MAX_LABEL_W = 300;
 
-function chip(x: number, y: number, label: string, icon: Icon | undefined, { theme, font }: Style) {
-  const width = chipWidth(label, icon, font);
-  let out = `<rect x="${x + 0.5}" y="${y + 0.5}" width="${width - 1}" height="${CHIP_H - 1}" rx="8" fill="${theme.line}" fill-opacity="0.55" stroke="${theme.border}"/>`;
-  let tx = x + 11;
+/** A chip's measurements at the style's text size */
+function chipSizes(style: Style) {
+  const { x: s, cap } = scales(style);
+  return { size: s(12.5), height: s(32), icon: s(15), left: s(11), iconGap: s(8), right: s(12), gap: s(8), baseline: s(16) + s(4.5) * cap };
+}
+
+type Chip = ReturnType<typeof chipSizes>;
+
+function chip(x: number, y: number, label: string, icon: Icon | undefined, { theme, font }: Style, c: Chip) {
+  const width = chipWidth(label, icon, font, c);
+  let out = `<rect x="${round(x + 0.5)}" y="${round(y + 0.5)}" width="${width - 1}" height="${round(c.height - 1)}" rx="8" fill="${theme.line}" fill-opacity="0.55" stroke="${theme.border}"/>`;
+  let tx = x + c.left;
   if (icon) {
-    out += `<g transform="translate(${tx} ${y + (CHIP_H - 15) / 2}) scale(${15 / 24})">${icon.draw(readable(`#${icon.hex}`, theme), theme)}</g>`;
-    tx += 15 + 8;
+    out += `<g transform="translate(${round(tx)} ${round(y + (c.height - c.icon) / 2)}) scale(${c.icon / 24})">${icon.draw(readable(`#${icon.hex}`, theme), theme)}</g>`;
+    tx += c.icon + c.iconGap;
   }
-  out += text(tx, y + 20.5, label, { size: SIZE, weight: 500, fill: theme.fg });
+  out += text(tx, y + c.baseline, label, { size: c.size, weight: 500, fill: theme.fg });
   return out;
 }
 
-function chipWidth(label: string, icon: Icon | undefined, font: Font) {
-  return Math.ceil(11 + (icon ? 15 + 8 : 0) + font.width(label, SIZE, 500) + 12);
+function chipWidth(label: string, icon: Icon | undefined, font: Font, c: Chip) {
+  return Math.ceil(c.left + (icon ? c.icon + c.iconGap : 0) + font.width(label, c.size, 500) + c.right);
 }
 
 export function skillsCard(groups: SkillGroup[], style: Style, title?: string) {
   const { theme, font } = style;
-  const area = W - PAD * 2 - LABEL_W;
-  let y = PAD_Y;
+  const { t, l, x: s, p, tc, cap } = scales(style);
+  const c = chipSizes(style);
+  const pad = p(28);
+  /** Less above and below than at the sides: next to the 11px between groups, 28 looked empty */
+  const padY = p(20);
+  const labelSize = l(11);
+  // Room for the longest group name, and never less than the card was designed with
+  const widest = Math.max(0, ...groups.map((g) => font.width(g.name.toUpperCase(), labelSize, 700, 1.2)));
+  const labelW = Math.min(Math.max(l(150), widest + l(24)), MAX_LABEL_W);
+  const area = W - pad * 2 - labelW;
+
+  let y = padY;
   let body = '';
   if (title) {
-    body += text(PAD, y + 16, title, { size: 15, weight: 800, fill: theme.fg });
-    y += 42;
+    body += text(pad, y + tc(16), font.fit(title, t(15), W - pad * 2, 800), { size: t(15), weight: 800, fill: theme.fg });
+    y += t(42);
   }
 
   // The divider between two groups sits exactly halfway between their chips
-  const between = 11;
+  const between = s(11);
   groups.forEach((group, gi) => {
     if (gi > 0) {
       y += between;
-      body += `<line x1="${PAD}" y1="${y}" x2="${W - PAD}" y2="${y}" stroke="${theme.line}"/>`;
+      body += `<line x1="${round(pad)}" y1="${round(y)}" x2="${round(W - pad)}" y2="${round(y)}" stroke="${theme.line}"/>`;
       y += between;
     }
-    body += text(PAD, y + 20.5, group.name.toUpperCase(), { size: 11, weight: 700, fill: theme.muted, spacing: 1.2 });
+    const name = font.fit(group.name.toUpperCase(), labelSize, labelW - l(16), 700, 1.2);
+    body += text(pad, y + c.height / 2 + l(4.5) * cap, name, { size: labelSize, weight: 700, fill: theme.muted, spacing: 1.2 });
     let x = 0;
     let rowY = y;
     for (const skill of group.skills) {
-      const width = chipWidth(skill.label, skill.icon, font);
+      const width = chipWidth(skill.label, skill.icon, font, c);
       if (x > 0 && x + width > area) {
         x = 0;
-        rowY += CHIP_H + GAP;
+        rowY += c.height + c.gap;
       }
-      body += chip(PAD + LABEL_W + x, rowY, skill.label, skill.icon, style);
-      x += width + GAP;
+      body += chip(pad + labelW + x, rowY, skill.label, skill.icon, style, c);
+      x += width + c.gap;
     }
-    y = rowY + CHIP_H;
+    y = rowY + c.height;
   });
 
-  return doc({ width: W, height: y + PAD_Y, style, weights: [500, 700, 800], title: title ?? 'Skills', body });
+  return doc({ width: W, height: y + padY, style, weights: [500, 700, 800], title: title ?? 'Skills', body });
 }
