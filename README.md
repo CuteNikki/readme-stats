@@ -115,11 +115,14 @@ Every request counts as a view, so it's never cached. `since=2026-07` (or a full
 {
   "login": "you",
   "name": "Your Name",
+  "createdAt": "2019-04-18T01:20:13Z",
+  "followers": 10,
   "commits": 4894,
   "pullRequests": 48,
   "issues": 6,
   "stars": 40,
   "repos": 55,
+  "contributedTo": 1,
   "streak": {
     "current": { "days": 1, "start": "2026-11-13", "end": "2026-11-13" },
     "longest": { "days": 18, "start": "2024-10-27", "end": "2024-11-13" }
@@ -134,7 +137,7 @@ Every request counts as a view, so it's never cached. `since=2026-07` (or a full
 }
 ```
 
-A streak's `start` and `end` are dates, or `null` when it's 0 days. Today not having a contribution yet doesn't end the current streak, the same as on the card. `contributions` counts every year, `lastYear` the last twelve months, and `views` is the view counter's count, read without counting a view.
+`repos` counts the account's own repos without forks, and `contributedTo` other people's repos it committed, opened pull requests or issues in. A streak's `start` and `end` are dates, or `null` when it's 0 days. Today not having a contribution yet doesn't end the current streak, the same as on the card. `contributions` counts every year, `lastYear` the last twelve months, and `views` is the view counter's count, read without counting a view.
 
 Each language's `share` is its percentage of the languages shown, ranked by `by=` like the card's bar, so the shares add up to 100. `label` is the same number as the card writes it (75% but 6.7%), and `bytes` and `repos` are the raw numbers, over the account's own repos without forks, for working out a share another way. An account that isn't in `GITHUB_USERS` gets a 403 with `{ "error": "..." }`.
 
