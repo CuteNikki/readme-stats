@@ -3,7 +3,7 @@
 
 import type { Icon } from '../icons';
 import { scales, type Style } from '../style';
-import { doc, round, text } from '../svg';
+import { doc, line, round, text } from '../svg';
 import { readable } from '../theme';
 
 export interface BadgeOptions {
@@ -43,7 +43,7 @@ export function badge({ style, label, value, note, icon, drawIcon, color }: Badg
   x += font.width(label, size, 500);
   if (value) {
     x += s(10);
-    body += `<line x1="${round(x)}" y1="${round(iconY)}" x2="${round(x)}" y2="${round(height - iconY)}" stroke="${theme.border}"/>`;
+    body += line(style, x, iconY, x, height - iconY, theme.border);
     x += s(10);
     body += text(x, baseline, value, { size, weight: 700, fill: theme.accent });
     x += font.width(value, size, 700);

@@ -4,7 +4,7 @@
 import type { Day, Language, Profile } from '../github';
 import { streaks } from '../streak';
 import { scales, type Style } from '../style';
-import { doc, group, round, text, type Weight } from '../svg';
+import { doc, group, line, round, text, type Weight } from '../svg';
 
 export interface ProfileOptions {
   style: Style;
@@ -245,19 +245,18 @@ export function profileCard(p: Profile, options: ProfileOptions) {
   body += text(pad, headY, login, { size: t(15), weight: 800, fill: theme.fg });
   body += text(pad + font.width(login, t(15), 800) + s(12), headY, 'on GitHub', { size: s(12), fill: theme.muted });
   body += text(W - pad, headY, `since ${new Date(p.createdAt).getUTCFullYear()}`, { size: l(11), weight: 700, fill: theme.accent, anchor: 'end', spacing: 1 });
-  body += `<line x1="${round(pad)}" y1="${round(dividerY)}" x2="${round(W - pad)}" y2="${round(dividerY)}" stroke="${theme.line}"/>`;
+  body += line(style, pad, dividerY, W - pad, dividerY);
 
   const columns = [overview(p, cols[0].x, cols[0].w, layout), streak(p, cols[1].x, cols[1].w, layout), languages(p, cols[2].x, cols[2].w, options, layout)];
   const bottom = Math.max(...columns.map((c) => c.bottom));
   for (const c of columns) body += c.body;
   for (const col of cols.slice(1)) {
-    const dx = round(col.x - gap / 2);
-    body += `<line x1="${dx}" y1="${round(columnsTop)}" x2="${dx}" y2="${round(bottom + s(4))}" stroke="${theme.line}"/>`;
+    body += line(style, col.x - gap / 2, columnsTop, col.x - gap / 2, bottom + s(4));
   }
 
   let height = bottom + sc.p(30);
   if (options.graph) {
-    body += `<line x1="${round(pad)}" y1="${round(height)}" x2="${round(W - pad)}" y2="${round(height)}" stroke="${theme.line}"/>`;
+    body += line(style, pad, height, W - pad, height);
     const g = graph(p.days, height, layout);
     body += g.body;
     height += g.height;

@@ -13,8 +13,10 @@ export interface Style {
   font: Font;
   /** Corner rounding in px; each card's own when not set */
   radius?: number;
-  /** The outline around the card */
+  /** The outline around the card, and around the chips on it */
   border: boolean;
+  /** The lines inside a card, between its parts */
+  dividers: boolean;
   /** The space inside the card's edges, as a multiple of the card's own */
   padding: number;
   /** Text sizes as multiples: titles (names, the banner, the streak), labels (the small capitals), and the rest */
@@ -27,10 +29,10 @@ const SIZE_KEYS = ['title-size', 'label-size', 'text-size'] as const;
 const MAX_RADIUS = 40;
 
 /** The query keys a style reads, which /skills mustn't take for groups */
-export const STYLE_KEYS = ['theme', 'font', 'radius', 'padding', ...Object.keys(COLOR_KEYS), ...SIZE_KEYS] as const;
+export const STYLE_KEYS = ['theme', 'font', 'radius', 'padding', 'dividers', ...Object.keys(COLOR_KEYS), ...SIZE_KEYS] as const;
 
 export function defaultStyle(theme: Theme): Style {
-  return { theme, font: jetbrainsMono, border: true, padding: 1, sizes: { title: 1, label: 1, text: 1 } };
+  return { theme, font: jetbrainsMono, border: true, dividers: true, padding: 1, sizes: { title: 1, label: 1, text: 1 } };
 }
 
 /**
@@ -94,6 +96,7 @@ export async function styleFrom(q: URLSearchParams): Promise<Style> {
     font: await fontFrom(q.get('font')),
     radius: radiusFrom(q.get('radius')),
     border: border === null || !NO.has(border),
+    dividers: !NO.has(q.get('dividers') ?? ''),
     padding: scaleFrom(q, 'padding'),
     sizes: { title: scaleFrom(q, 'title-size'), label: scaleFrom(q, 'label-size'), text: scaleFrom(q, 'text-size') },
   };

@@ -4,7 +4,7 @@
 import type { Icon } from '../icons';
 import type { Font } from '../fonts';
 import { scales, type Style } from '../style';
-import { doc, round, text } from '../svg';
+import { doc, line, round, text } from '../svg';
 import { readable } from '../theme';
 
 export interface SkillGroup {
@@ -65,7 +65,7 @@ export function skillsCard(groups: SkillGroup[], style: Style, title?: string) {
   groups.forEach((group, gi) => {
     if (gi > 0) {
       y += between;
-      body += `<line x1="${round(pad)}" y1="${round(y)}" x2="${round(W - pad)}" y2="${round(y)}" stroke="${theme.line}"/>`;
+      body += line(style, pad, y, W - pad, y);
       y += between;
     }
     const name = font.fit(group.name.toUpperCase(), labelSize, labelW - l(16), 700, 1.2);

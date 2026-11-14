@@ -61,6 +61,11 @@ export function text(x: number, y: number, content: string | number, { size, wei
   return `<text x="${round(x)}" y="${round(y)}" font-size="${round(size)}" font-weight="${weight}" fill="${fill}"${anchor === 'start' ? '' : ` text-anchor="${anchor}"`}${spacing ? ` letter-spacing="${spacing}"` : ''}${opacity === undefined ? '' : ` opacity="${opacity}"`}>${esc(content)}</text>`;
 }
 
+/** A divider inside a card, or nothing when the style turns dividers off */
+export function line(style: Style, x1: number, y1: number, x2: number, y2: number, stroke = style.theme.line) {
+  return style.dividers ? `<line x1="${round(x1)}" y1="${round(y1)}" x2="${round(x2)}" y2="${round(y2)}" stroke="${stroke}"/>` : '';
+}
+
 export function round(n: number) {
   return Math.round(n * 100) / 100;
 }
