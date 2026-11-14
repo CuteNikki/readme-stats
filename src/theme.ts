@@ -51,6 +51,57 @@ export function pickTheme(value: string | null): Theme {
   return value === 'light' ? themes.light : themes.dark;
 }
 
+/** "abc", "#abc" or "aabbcc" as "#aabbcc", or undefined if it isn't a hex colour */
+export function hexColor(value: string) {
+  const hex = value.trim().replace(/^#/, '').toLowerCase();
+  if (/^[0-9a-f]{3}$/.test(hex)) return `#${[...hex].map((c) => c + c).join('')}`;
+  if (/^[0-9a-f]{6}$/.test(hex)) return `#${hex}`;
+  return undefined;
+}
+
+/** The colour t of the way from a to b */
+function mix(a: string, b: string, t: number) {
+  const [x, y] = [a, b].map((c) => Number.parseInt(c.slice(1), 16));
+  const channel = (shift: number) => Math.round(((x! >> shift) & 255) * (1 - t) + ((y! >> shift) & 255) * t);
+  return `#${((channel(16) << 16) | (channel(8) << 8) | channel(0)).toString(16).padStart(6, '0')}`;
+}
+
+export interface Colors {
+  bg?: string;
+  fg?: string;
+  muted?: string;
+  accent?: string;
+  border?: string;
+}
+
+/**
+ * A theme with some of its colours swapped. The ones nobody names are mixed
+ * from those that are, the way the two built-in themes are put together:
+ * dividers a little towards the text, chips and the graph towards the accent.
+ */
+export function customTheme(base: Theme, colors: Colors): Theme {
+  if (Object.values(colors).every((c) => c === undefined)) return base;
+  const bg = colors.bg ?? base.bg;
+  // A dark bg on the light theme keeps light text rather than its own dark text, and the other way round
+  const fg = colors.fg ?? (contrast(base.fg, bg) >= 4.5 ? base.fg : [themes.dark.fg, themes.light.fg].sort((a, b) => contrast(b, bg) - contrast(a, bg))[0]!);
+  const accent = colors.accent ?? base.accent;
+  const theme: Theme = { ...base, bg, fg, accent, levels: [...base.levels] };
+  if (colors.bg || colors.fg) {
+    theme.line = mix(bg, fg, 0.07);
+    theme.border = mix(bg, fg, 0.11);
+    theme.muted = mix(bg, fg, 0.65);
+    theme.levels[0] = mix(bg, fg, 0.06);
+  }
+  if (colors.bg || colors.accent) {
+    theme.accentSoft = mix(bg, accent, 0.18);
+    theme.grid = mix(bg, accent, 0.07);
+    theme.levels = [theme.levels[0], mix(bg, accent, 0.3), mix(bg, accent, 0.55), mix(bg, accent, 0.8), accent];
+  }
+  if (colors.muted) theme.muted = colors.muted;
+  if (colors.border) theme.border = colors.border;
+  return theme;
+}
+
 function luminance(hex: string) {
   const n = Number.parseInt(hex.replace('#', ''), 16);
   const channel = (c: number) => {
