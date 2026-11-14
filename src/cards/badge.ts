@@ -15,7 +15,7 @@ export interface BadgeOptions {
   icon?: Icon;
   /** Draws its own icon instead, in a 16x16 box at (x, y) */
   drawIcon?: (x: number, y: number, color: string) => string;
-  /** The icon's colour instead of the brand's, as hex without # */
+  /** The icon's colour instead of the brand's, as #rrggbb */
   color?: string;
 }
 
@@ -24,7 +24,7 @@ const SIZE = 13;
 
 export function badge({ style, label, value, note, icon, drawIcon, color }: BadgeOptions) {
   const { theme, font } = style;
-  const iconColor = color ? readable(`#${color}`, theme) : icon ? readable(`#${icon.hex}`, theme) : theme.accent;
+  const iconColor = color ? readable(color, theme) : icon ? readable(`#${icon.hex}`, theme) : theme.accent;
   let x = 13;
   let body = '';
   if (icon) {

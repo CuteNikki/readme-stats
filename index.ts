@@ -10,7 +10,7 @@ import { octicon, octicons } from './src/octicons';
 import { group } from './src/svg';
 import { Problem } from './src/problem';
 import { defaultStyle, STYLE_KEYS, styleFrom, type Style } from './src/style';
-import { pickTheme } from './src/theme';
+import { hexColor, pickTheme } from './src/theme';
 import { streaks, type Run } from './src/streak';
 import { countView, viewCount } from './src/views';
 import { preview } from './src/preview';
@@ -226,7 +226,7 @@ function badgeRoute(req: Request, iconName: string | undefined) {
     // GitHub's own icons too, for what has no brand: /badge/link for a website
     const own = iconName && !found && iconName in octicons ? (iconName as keyof typeof octicons) : undefined;
     if (iconName && !found && !own) return problem(`no icon called ${iconName}`, style, 404);
-    const color = q.get('color')?.replace('#', '');
+    const color = q.get('color');
     return svg(
       badge({
         style,
@@ -234,7 +234,7 @@ function badgeRoute(req: Request, iconName: string | undefined) {
         drawIcon: own && ((x, y, c) => octicon(own, x, y, 16, c)),
         label: q.get('label') ?? found?.title ?? 'badge',
         value: q.get('value') ?? undefined,
-        color: color && /^[0-9a-f]{3,6}$/i.test(color) ? color : undefined,
+        color: color ? hexColor(color) : undefined,
       }),
       STATIC_AGE,
       200,
