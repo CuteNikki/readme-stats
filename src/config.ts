@@ -23,6 +23,8 @@ export const config = {
   dataDir: process.env.DATA_DIR ?? './data',
   /** The view counter starts here, e.g. to carry over the count from another counter */
   viewsStart: Number(process.env.VIEWS_START ?? 0),
+  /** Whether ?font= may fetch families from Google Fonts, or only the bundled one is drawn */
+  googleFonts: process.env.GOOGLE_FONTS !== 'false',
 };
 
 export function allowedUser(login: string | null) {
