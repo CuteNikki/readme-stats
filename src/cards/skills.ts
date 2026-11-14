@@ -24,9 +24,9 @@ function chipSizes(style: Style) {
 
 type Chip = ReturnType<typeof chipSizes>;
 
-function chip(x: number, y: number, label: string, icon: Icon | undefined, { theme, font }: Style, c: Chip) {
+function chip(x: number, y: number, label: string, icon: Icon | undefined, { theme, font, border }: Style, c: Chip) {
   const width = chipWidth(label, icon, font, c);
-  let out = `<rect x="${round(x + 0.5)}" y="${round(y + 0.5)}" width="${width - 1}" height="${round(c.height - 1)}" rx="8" fill="${theme.line}" fill-opacity="0.55" stroke="${theme.border}"/>`;
+  let out = `<rect x="${round(x + 0.5)}" y="${round(y + 0.5)}" width="${width - 1}" height="${round(c.height - 1)}" rx="8" fill="${theme.line}" fill-opacity="0.55"${border ? ` stroke="${theme.border}"` : ''}/>`;
   let tx = x + c.left;
   if (icon) {
     out += `<g transform="translate(${round(tx)} ${round(y + (c.height - c.icon) / 2)}) scale(${c.icon / 24})">${icon.draw(readable(`#${icon.hex}`, theme), theme)}</g>`;
