@@ -112,7 +112,16 @@ const server = Bun.serve({
               streak: { current: current.length, longest: longest.length },
               contributions: total,
               lastYear: lastYear(p.days).reduce((sum, d) => sum + d.count, 0),
-              languages: languages.map((l) => ({ name: l.name, share: percent(l.share) })),
+              // share is a number for whoever does their own maths; label is
+              // the card's own text, rounded the same way
+              languages: languages.map((l) => ({
+                name: l.name,
+                color: l.color,
+                share: Math.round(l.share * 100) / 100,
+                label: percent(l.share),
+                bytes: l.size,
+                repos: l.repos,
+              })),
               views: viewCount(user),
             },
             { headers: { 'Cache-Control': `public, max-age=${DATA_AGE}` } },

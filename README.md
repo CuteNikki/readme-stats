@@ -124,14 +124,16 @@ Every request counts as a view, so it's never cached. `since=2026-07` (or a full
   "contributions": 4968,
   "lastYear": 2669,
   "languages": [
-    { "name": "TypeScript", "share": "75%" },
-    { "name": "JavaScript", "share": "14%" }
+    { "name": "TypeScript", "color": "#3178c6", "share": 74.85, "label": "75%", "bytes": 13410471, "repos": 44 },
+    { "name": "JavaScript", "color": "#f1e05a", "share": 14.48, "label": "14%", "bytes": 596884, "repos": 37 }
   ],
   "views": 1234
 }
 ```
 
-`contributions` counts every year, `lastYear` the last twelve months, and `views` is the view counter's count, read without counting a view. An account that isn't in `GITHUB_USERS` gets a 403 with `{ "error": "..." }`.
+`contributions` counts every year, `lastYear` the last twelve months, and `views` is the view counter's count, read without counting a view.
+
+Each language's `share` is its percentage of the languages shown, ranked by `by=` like the card's bar, so the shares add up to 100. `label` is the same number as the card writes it (75% but 6.7%), and `bytes` and `repos` are the raw numbers, over the account's own repos without forks, for working out a share another way. An account that isn't in `GITHUB_USERS` gets a 403 with `{ "error": "..." }`.
 
 Its main use is [alt text that says what the card shows](#alt-text-with-the-latest-numbers).
 
@@ -166,7 +168,7 @@ const n = (value) => value.toLocaleString('en-US');
 const alt =
   `${s.name}'s GitHub stats: ${n(s.commits)} commits, ${n(s.pullRequests)} pull requests, ${n(s.stars)} stars. ` +
   `Current streak: ${n(s.streak.current)} days, longest: ${n(s.streak.longest)} days. ` +
-  `Top languages: ${s.languages.map((l) => `${l.name} ${l.share}`).join(', ')}.`;
+  `Top languages: ${s.languages.map((l) => `${l.name} ${l.label}`).join(', ')}.`;
 
 // Replaces the alt of the <img> whose link starts with BASE/card?
 const before = readFileSync('README.md', 'utf8');
