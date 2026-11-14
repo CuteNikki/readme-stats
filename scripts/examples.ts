@@ -9,7 +9,7 @@ const examples: Record<string, string> = {
   banner: `/banner?label=developer%20%26%20designer&title=Hey%2C%20I'm%20${user}&subtitle=Full-stack%20work%2C%20mostly%20TypeScript`,
   card: `/card?user=${user}`,
   'card-no-graph': `/card?user=${user}&graph=false&by=bytes`,
-  repo: `/repo/${user}/discord-rpc-new`,
+  repo: `/repo/${user}/readme-stats`,
   skills: '/skills?languages=typescript,javascript,java&runtimes=nodedotjs,bun&frontend=react,nextdotjs,tailwindcss&design=figma,ai,ps',
   'badge-discord': '/badge/discord?label=Discord',
   'badge-website': '/badge/link?label=Website&value=example.com',
