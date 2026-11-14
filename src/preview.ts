@@ -7,6 +7,7 @@ const examples = (user: string) => [
   ['Banner', `/banner?label=developer%20%26%20designer&title=Hey%2C%20I'm%20${user}&subtitle=Full-stack%20work%2C%20mostly%20TypeScript`],
   ['Profile card', `/card?user=${user}`],
   ['Profile card, no graph', `/card?user=${user}&graph=false&by=bytes`],
+  ['Profile card, styled', `/card?user=${user}&font=Inter&accent=ec4899&radius=20&title-size=lg&graph=false`],
   ['Skills', '/skills?languages=typescript,javascript,java,html5,css&runtimes=nodedotjs,bun&frontend=react,nextdotjs,tailwindcss&design=figma,ai,ps'],
   ['Badges', '/badge/discord?label=discord'],
   ['Views', `/views?user=${user}`],

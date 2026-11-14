@@ -16,7 +16,7 @@ It replaces separate stats, streak and top-language services with one small Bun 
 | [`/views?user=you`](#view-counter) | A profile view counter |
 | [`/stats.json?user=you`](#stats-as-json) | The profile card's numbers as JSON, e.g. for alt text |
 
-Every card takes `?theme=dark` or `?theme=light` (dark is the default). `user=` can be left out and means the first account in `GITHUB_USERS`. `v=` does nothing, so changing it gives a card a new link: GitHub's image proxy keeps a card up to the time it says, so after changing the look, bump `v` to show it straight away.
+Every card takes `?theme=dark` or `?theme=light` (dark is the default), and its font, colours, corners and text sizes can be changed too: see [Styling](#styling). `user=` can be left out and means the first account in `GITHUB_USERS`. `v=` does nothing, so changing it gives a card a new link: GitHub's image proxy keeps a card up to the time it says, so after changing the look, bump `v` to show it straight away.
 
 Open `/` on the server for a preview of every card in both themes. The pictures below are in [`docs/examples`](docs/examples).
 
@@ -144,6 +144,34 @@ Each language's `share` is its percentage of the languages shown, ranked by `by=
 
 Its main use is [alt text that says what the card shows](#alt-text-with-the-latest-numbers).
 
+## Styling
+
+Every card takes the same options for how it looks, on top of `theme=`.
+
+`/card?user=you&font=Inter&accent=ec4899&radius=20&title-size=lg&graph=false`
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/examples/styled-dark.svg">
+  <img src="docs/examples/styled-light.svg" alt="The profile card in Inter, with a pink accent, rounder corners and a bigger name and streak" width="100%">
+</picture>
+
+| Option | What it does |
+| --- | --- |
+| `font=Inter` | Any family on [Google Fonts](https://fonts.google.com), by its name (`font=Space+Mono`). Proportional fonts work too: text is measured from the font itself, so it's fitted and cut off the same. JetBrains Mono when left out. |
+| `bg=` `text=` `muted=` `accent=` `border=` | Colours, as hex without the `#` (`accent=ec4899`). |
+| `border=false` | No outline around the card. |
+| `radius=20` | Corner rounding in pixels, from 0 to 40. Cards have 14 and badges 10 otherwise. |
+| `padding=lg` | The space inside the card's edges. |
+| `title-size=lg` | Names, the banner's title and the streak's number. |
+| `label-size=sm` | The small capitals: headings, the banner's label, skill groups. |
+| `text-size=xl` | Everything else. |
+
+Sizes and padding take `xs`, `sm`, `md`, `lg` or `xl`, where `md` is the card as designed. Bigger text pushes what's under it down and makes the card taller rather than running into it, and text that doesn't fit in its place is cut off with an ellipsis.
+
+Colours that aren't given are mixed from those that are: the dividers from the background and text, the contribution graph and chips from the background and accent. A background on its own keeps text that can be read on it, so `bg=0b1021` on the light theme gets light text. To give the dark and light versions different colours, put different colours in each link of the `<picture>`.
+
+The first card in a font fetches it from Google, which takes a moment; after that it's kept in `DATA_DIR`. A font name Google doesn't have, or an option that can't be drawn, is said on the card itself.
+
 ## Using it in a README
 
 Show the version that matches the reader's theme with `<picture>`:
@@ -236,8 +264,9 @@ Put it behind a reverse proxy with HTTPS: GitHub only loads images over HTTPS. `
 | `GITHUB_TOKEN` | A classic token with `read:user`, plus `repo` so private contributions count. Only ever sent to GitHub. |
 | `GITHUB_USERS` | The accounts cards are drawn for, comma-separated, the first being the default. Anyone else gets a 403, so nobody else spends the token's limits. |
 | `CACHE_MINUTES` | How long GitHub's answers are kept before they're fetched again, in the background. Default `30`. |
-| `DATA_DIR` | Where the view counter keeps its count. Default `./data` (`/data` in Docker, mounted from `./data`). |
+| `DATA_DIR` | Where the view counter keeps its count and fonts from Google are kept. Default `./data` (`/data` in Docker, mounted from `./data`). |
 | `VIEWS_START` | The number the view counter starts from. Default `0`. |
+| `GOOGLE_FONTS` | `false` keeps cards to the bundled font, so `font=` never fetches anything. Default on. |
 | `PORT` | Default `3000`. |
 
 ### Caching
@@ -257,4 +286,4 @@ bun run examples                # in another; BASE=http://localhost:3077 for ano
 
 ## Fonts
 
-The cards carry [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono), cut down to Latin, because an image in a README can't load fonts from anywhere else. It's under the SIL Open Font License, in `fonts/OFL.txt`.
+An image in a README can't load fonts from anywhere else, so every card carries the font it's drawn in, only the weights it uses and cut down to Latin. By default that's [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono), under the SIL Open Font License, in `fonts/OFL.txt`. A `font=` from Google Fonts comes under its own open license, listed on its page there.

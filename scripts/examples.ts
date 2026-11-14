@@ -14,6 +14,7 @@ const examples: Record<string, string> = {
   'badge-discord': '/badge/discord?label=Discord',
   'badge-website': '/badge/link?label=Website&value=example.com',
   views: `/views?user=${user}&since=2026-07`,
+  styled: `/card?user=${user}&font=Inter&accent=ec4899&radius=20&title-size=lg&graph=false`,
 };
 
 const dir = new URL('../docs/examples/', import.meta.url);
