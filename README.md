@@ -120,7 +120,10 @@ Every request counts as a view, so it's never cached. `since=2026-07` (or a full
   "issues": 6,
   "stars": 40,
   "repos": 55,
-  "streak": { "current": 1, "longest": 18 },
+  "streak": {
+    "current": { "days": 1, "start": "2026-11-13", "end": "2026-11-13" },
+    "longest": { "days": 18, "start": "2024-10-27", "end": "2024-11-13" }
+  },
   "contributions": 4968,
   "lastYear": 2669,
   "languages": [
@@ -131,7 +134,7 @@ Every request counts as a view, so it's never cached. `since=2026-07` (or a full
 }
 ```
 
-`contributions` counts every year, `lastYear` the last twelve months, and `views` is the view counter's count, read without counting a view.
+A streak's `start` and `end` are dates, or `null` when it's 0 days. Today not having a contribution yet doesn't end the current streak, the same as on the card. `contributions` counts every year, `lastYear` the last twelve months, and `views` is the view counter's count, read without counting a view.
 
 Each language's `share` is its percentage of the languages shown, ranked by `by=` like the card's bar, so the shares add up to 100. `label` is the same number as the card writes it (75% but 6.7%), and `bytes` and `repos` are the raw numbers, over the account's own repos without forks, for working out a share another way. An account that isn't in `GITHUB_USERS` gets a 403 with `{ "error": "..." }`.
 
@@ -167,7 +170,7 @@ const s = await response.json();
 const n = (value) => value.toLocaleString('en-US');
 const alt =
   `${s.name}'s GitHub stats: ${n(s.commits)} commits, ${n(s.pullRequests)} pull requests, ${n(s.stars)} stars. ` +
-  `Current streak: ${n(s.streak.current)} days, longest: ${n(s.streak.longest)} days. ` +
+  `Current streak: ${n(s.streak.current.days)} days, longest: ${n(s.streak.longest.days)} days. ` +
   `Top languages: ${s.languages.map((l) => `${l.name} ${l.label}`).join(', ')}.`;
 
 // Replaces the alt of the <img> whose link starts with BASE/card?

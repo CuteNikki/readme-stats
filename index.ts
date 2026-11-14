@@ -9,7 +9,7 @@ import { icon } from './src/icons';
 import { octicon, octicons } from './src/octicons';
 import { group } from './src/svg';
 import { pickTheme, type Theme } from './src/theme';
-import { streaks } from './src/streak';
+import { streaks, type Run } from './src/streak';
 import { countView, viewCount } from './src/views';
 import { preview } from './src/preview';
 
@@ -109,7 +109,7 @@ const server = Bun.serve({
               issues: p.issues,
               stars: p.stars,
               repos: p.repos,
-              streak: { current: current.length, longest: longest.length },
+              streak: { current: run(current), longest: run(longest) },
               contributions: total,
               lastYear: lastYear(p.days).reduce((sum, d) => sum + d.count, 0),
               // share is a number for whoever does their own maths; label is
@@ -206,6 +206,11 @@ function since(value: string | null) {
   const match = value?.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
   const month = match ? MONTHS[Number(match[2]) - 1] : undefined;
   return month ? `since ${month} ${match![1]}` : undefined;
+}
+
+/** A streak for /stats.json: null dates rather than none, so every key is always there */
+function run({ length, start, end }: Run) {
+  return { days: length, start: start ?? null, end: end ?? null };
 }
 
 function badgeRoute(req: Request, iconName: string | undefined) {
