@@ -96,6 +96,7 @@ Only public repos of the accounts in `GITHUB_USERS` get a card. Put two side by 
 
 - `title=` defaults to "Hey, I'm" and the first account in `GITHUB_USERS`
 - `label=` and `subtitle=` are left out when not given.
+- `grid=false` leaves out the grid behind the text, and `glow=false` the accent's glow in the corner.
 
 ### View counter
 
@@ -159,7 +160,8 @@ Every card takes the same options for how it looks, on top of `theme=`.
 | --- | --- |
 | `font=Inter` | Any family on [Google Fonts](https://fonts.google.com), by its name (`font=Space+Mono`). Proportional fonts work too: text is measured from the font itself, so it's fitted and cut off the same. JetBrains Mono when left out. |
 | `bg=` `text=` `muted=` `accent=` `border=` | Colours, as hex without the `#` (`accent=ec4899`). |
-| `border=false` | No outline around the card. |
+| `border=false` | No outline around the card, or around the skills' chips. |
+| `dividers=false` | No lines inside the card: under the profile card's name, between its columns and above its graph, between skill groups, and in a badge. |
 | `radius=20` | Corner rounding in pixels, from 0 to 40. Cards have 14 and badges 10 otherwise. |
 | `padding=lg` | The space inside the card's edges. |
 | `title-size=lg` | Names, the banner's title and the streak's number. |
@@ -171,6 +173,70 @@ Sizes and padding take `xs`, `sm`, `md`, `lg` or `xl`, where `md` is the card as
 Colours that aren't given are mixed from those that are: the dividers from the background and text, the contribution graph and chips from the background and accent. A background on its own keeps text that can be read on it, so `bg=0b1021` on the light theme gets light text. To give the dark and light versions different colours, put different colours in each link of the `<picture>`.
 
 The first card in a font fetches it from Google, which takes a moment; after that it's kept in `DATA_DIR`. A font name Google doesn't have, or an option that can't be drawn, is said on the card itself.
+
+## Gallery
+
+A few looks made only from the options above. They set their own background, so each is one picture for both themes.
+
+### Retro terminal
+
+VT323, green on black, square corners and everything a size up.
+
+<img src="docs/examples/gallery-terminal.svg" alt="The profile card as a green-on-black terminal, in a pixel font" width="100%">
+
+```
+/card?user=you&font=VT323&bg=050a05&text=b6ffc4&muted=4fbf6a&accent=39ff6a&border=1f5c2c&radius=0&text-size=xl&label-size=xl&title-size=xl
+```
+
+### Editorial
+
+Playfair Display on warm paper, with a big name and more room.
+
+<img src="docs/examples/gallery-editorial.svg" alt="A project card set in a serif on cream paper" width="49%">
+
+```
+/repo/you/readme-stats?font=Playfair+Display&bg=f7f1e6&text=2a2118&muted=6e5f4c&accent=a0522d&border=d9ccb6&radius=4&title-size=xl&label=open%20source&padding=lg
+```
+
+### Pastel
+
+Fredoka in pink, with round corners and chips to match.
+
+<img src="docs/examples/gallery-pastel.svg" alt="A pink skills card with rounded chips, titled Things I love using" width="100%">
+
+```
+/skills?font=Fredoka&bg=fff0f6&text=6b2c4a&accent=ff5fa2&border=ffc2dc&radius=28&padding=lg&text-size=lg&title=Things%20I%20love%20using&title-size=lg&languages=typescript%2Cjavascript%2Cpython&frontend=react%2Cnextdotjs%2Ctailwindcss&design=figma%2Cblender
+```
+
+### Synthwave
+
+Orbitron, magenta on deep purple, over the grid.
+
+<img src="docs/examples/gallery-synthwave.svg" alt="A purple banner with a magenta glow, reading: player one, Hey, I'm CuteNikki, Building things after midnight" width="100%">
+
+```
+/banner?font=Orbitron&bg=140a2e&text=f5e9ff&muted=b69ad8&accent=ff2bd6&border=3d1f73&radius=12&label=player%20one&title=Hey%2C%20I'm%20you&subtitle=Building%20things%20after%20midnight
+```
+
+### Swiss
+
+Space Grotesk in black, white and one red, with a hard black frame.
+
+<img src="docs/examples/gallery-swiss.svg" alt="The profile card in black and white with a red streak, in a square black frame" width="100%">
+
+```
+/card?user=you&font=Space+Grotesk&bg=ffffff&text=0a0a0a&muted=5a5a5a&accent=ff3b00&border=0a0a0a&radius=0&title-size=xl&graph=false&padding=lg
+```
+
+### Minimal
+
+DM Serif Display with no grid, glow or border, so it sits in the page like a heading.
+
+<img src="docs/examples/gallery-minimal.svg" alt="A plain banner in a large serif: designer and developer, CuteNikki, I make small, careful things for the web" width="100%">
+
+```
+/banner?font=DM+Serif+Display&theme=light&accent=111111&grid=false&glow=false&border=false&title-size=xl&label-size=sm&label=designer%20%26%20developer&title=you&subtitle=I%20make%20small%2C%20careful%20things%20for%20the%20web
+```
 
 ## Using it in a README
 
