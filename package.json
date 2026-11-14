@@ -15,6 +15,7 @@
     "typescript": "^7"
   },
   "dependencies": {
+    "fontkit": "^3.0.0",
     "simple-icons": "^16.37.0"
   },
   "description": "Stats, badges, skills and project cards for a GitHub profile README, in one matching style",

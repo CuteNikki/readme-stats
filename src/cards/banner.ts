@@ -1,11 +1,11 @@
 // The README's header: a small label, a big title and a line under it, on a
 // faint grid that fades out towards the edges
 
-import { doc, fit, text } from '../svg';
-import type { Theme } from '../theme';
+import type { Style } from '../style';
+import { doc, text } from '../svg';
 
 export interface BannerOptions {
-  theme: Theme;
+  style: Style;
   title: string;
   subtitle?: string;
   label?: string;
@@ -15,7 +15,8 @@ const W = 880;
 const H = 220;
 const PAD = 44;
 
-export function bannerCard({ theme, title, subtitle, label }: BannerOptions) {
+export function bannerCard({ style, title, subtitle, label }: BannerOptions) {
+  const { theme, font } = style;
   const step = 24;
   let grid = '';
   for (let x = step; x < W; x += step) grid += `M${x} 0V${H}`;
@@ -34,9 +35,9 @@ export function bannerCard({ theme, title, subtitle, label }: BannerOptions) {
 
   const hasLabel = Boolean(label);
   const titleY = hasLabel ? 118 : 104;
-  if (label) body += text(PAD, 72, fit(label.toUpperCase(), 12, W - PAD * 2), { size: 12, weight: 700, fill: theme.accent, spacing: 2 });
-  body += text(PAD - 2, titleY, fit(title, 46, W - PAD * 2), { size: 46, weight: 800, fill: theme.fg, spacing: -1 });
-  if (subtitle) body += text(PAD, titleY + 38, fit(subtitle, 15, W - PAD * 2), { size: 15, fill: theme.muted });
+  if (label) body += text(PAD, 72, font.fit(label.toUpperCase(), 12, W - PAD * 2, 700, 2), { size: 12, weight: 700, fill: theme.accent, spacing: 2 });
+  body += text(PAD - 2, titleY, font.fit(title, 46, W - PAD * 2, 800, -1), { size: 46, weight: 800, fill: theme.fg, spacing: -1 });
+  if (subtitle) body += text(PAD, titleY + 38, font.fit(subtitle, 15, W - PAD * 2), { size: 15, fill: theme.muted });
 
-  return doc({ width: W, height: H, theme, weights: [400, 700, 800], title, body });
+  return doc({ width: W, height: H, style, weights: [400, 700, 800], title, body });
 }

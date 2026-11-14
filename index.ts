@@ -8,7 +8,8 @@ import { NotFound, profile, repo } from './src/github';
 import { icon } from './src/icons';
 import { octicon, octicons } from './src/octicons';
 import { group } from './src/svg';
-import { pickTheme, type Theme } from './src/theme';
+import { defaultStyle, type Style } from './src/style';
+import { pickTheme } from './src/theme';
 import { streaks, type Run } from './src/streak';
 import { countView, viewCount } from './src/views';
 import { preview } from './src/preview';
@@ -37,8 +38,8 @@ function svg(body: string, maxAge: number, status = 200, req?: Request) {
 }
 
 /** Errors are pictures too, or a README would show a broken image */
-function problem(message: string, theme: Theme, status: number) {
-  return svg(badge({ theme, label: message, drawIcon: (x, y) => octicon('eye', x, y, 16, theme.muted) }), 60, status);
+function problem(message: string, style: Style, status: number) {
+  return svg(badge({ style, label: message, drawIcon: (x, y) => octicon('eye', x, y, 16, style.theme.muted) }), 60, status);
 }
 
 /** Cards from GitHub's numbers: they change all day */
@@ -53,13 +54,13 @@ function list(value: string | null) {
     .filter(Boolean);
 }
 
-async function guard(theme: Theme, run: () => Promise<Response> | Response) {
+async function guard(style: Style, run: () => Promise<Response> | Response) {
   try {
     return await run();
   } catch (error) {
-    if (error instanceof NotFound) return problem('not found', theme, 404);
+    if (error instanceof NotFound) return problem('not found', style, 404);
     console.error(error);
-    return problem('GitHub is not answering, try again soon', theme, 502);
+    return problem('GitHub is not answering, try again soon', style, 502);
   }
 }
 
@@ -71,18 +72,18 @@ const server = Bun.serve({
 
     '/card': (req) => {
       const q = new URL(req.url).searchParams;
-      const theme = pickTheme(q.get('theme'));
+      const style = defaultStyle(pickTheme(q.get('theme')));
       const user = allowedUser(q.get('user'));
-      if (!user) return problem('not an account this draws cards for', theme, 403);
+      if (!user) return problem('not an account this draws cards for', style, 403);
       const by = q.get('by');
       const options: ProfileOptions = {
-        theme,
+        style,
         graph: q.get('graph') !== 'false',
         langs: Math.min(Math.max(Number(q.get('langs') ?? 5) || 5, 1), 8),
         hide: list(q.get('hide')).map((s) => s.toLowerCase()),
         by: by === 'bytes' || by === 'repos' ? by : 'mixed',
       };
-      return guard(theme, async () => svg(profileCard(await profile(user), options), DATA_AGE, 200, req));
+      return guard(style, async () => svg(profileCard(await profile(user), options), DATA_AGE, 200, req));
     },
 
     // The card's numbers as text: for alt text that says what the card shows,
@@ -138,11 +139,11 @@ const server = Bun.serve({
 
     '/repo/:owner/:name': (req) => {
       const q = new URL(req.url).searchParams;
-      const theme = pickTheme(q.get('theme'));
+      const style = defaultStyle(pickTheme(q.get('theme')));
       const owner = allowedUser(req.params.owner);
-      if (!owner) return problem('not an account this draws cards for', theme, 403);
-      return guard(theme, async () =>
-        svg(repoCard(await repo(owner, req.params.name), { theme, label: q.get('label') ?? undefined, description: q.get('desc') ?? undefined }), DATA_AGE, 200, req),
+      if (!owner) return problem('not an account this draws cards for', style, 403);
+      return guard(style, async () =>
+        svg(repoCard(await repo(owner, req.params.name), { style, label: q.get('label') ?? undefined, description: q.get('desc') ?? undefined }), DATA_AGE, 200, req),
       );
     },
     '/repo/:name': (req) => Response.redirect(new URL(`/repo/${config.defaultUser}/${req.params.name}${new URL(req.url).search}`, req.url).href, 301),
@@ -152,7 +153,7 @@ const server = Bun.serve({
 
     '/skills': (req) => {
       const q = new URL(req.url).searchParams;
-      const theme = pickTheme(q.get('theme'));
+      const style = defaultStyle(pickTheme(q.get('theme')));
       const groups: SkillGroup[] = [];
       for (const [key, value] of q) {
         if (RESERVED.has(key)) continue;
@@ -166,15 +167,15 @@ const server = Bun.serve({
           }),
         });
       }
-      if (groups.length === 0) return problem('add groups, as ?languages=typescript,java', theme, 400);
-      return svg(skillsCard(groups, theme, q.get('title') ?? undefined), STATIC_AGE, 200, req);
+      if (groups.length === 0) return problem('add groups, as ?languages=typescript,java', style, 400);
+      return svg(skillsCard(groups, style, q.get('title') ?? undefined), STATIC_AGE, 200, req);
     },
 
     '/banner': (req) => {
       const q = new URL(req.url).searchParams;
-      const theme = pickTheme(q.get('theme'));
+      const style = defaultStyle(pickTheme(q.get('theme')));
       return svg(
-        bannerCard({ theme, title: q.get('title') ?? `Hey, I'm ${config.defaultUser}`, subtitle: q.get('subtitle') ?? undefined, label: q.get('label') ?? undefined }),
+        bannerCard({ style, title: q.get('title') ?? `Hey, I'm ${config.defaultUser}`, subtitle: q.get('subtitle') ?? undefined, label: q.get('label') ?? undefined }),
         STATIC_AGE,
         200,
         req,
@@ -183,13 +184,13 @@ const server = Bun.serve({
 
     '/views': (req) => {
       const q = new URL(req.url).searchParams;
-      const theme = pickTheme(q.get('theme'));
+      const style = defaultStyle(pickTheme(q.get('theme')));
       const user = allowedUser(q.get('user'));
-      if (!user) return problem('not an account this draws cards for', theme, 403);
+      if (!user) return problem('not an account this draws cards for', style, 403);
       const count = countView(user);
       return svg(
         badge({
-          theme,
+          style,
           label: q.get('label') ?? 'profile views',
           value: group(count),
           note: since(q.get('since')),
@@ -218,15 +219,15 @@ function run({ length, start, end }: Run) {
 
 function badgeRoute(req: Request, iconName: string | undefined) {
   const q = new URL(req.url).searchParams;
-  const theme = pickTheme(q.get('theme'));
+  const style = defaultStyle(pickTheme(q.get('theme')));
   const found = iconName ? icon(iconName) : undefined;
   // GitHub's own icons too, for what has no brand: /badge/link for a website
   const own = iconName && !found && iconName in octicons ? (iconName as keyof typeof octicons) : undefined;
-  if (iconName && !found && !own) return problem(`no icon called ${iconName}`, theme, 404);
+  if (iconName && !found && !own) return problem(`no icon called ${iconName}`, style, 404);
   const color = q.get('color')?.replace('#', '');
   return svg(
     badge({
-      theme,
+      style,
       icon: found,
       drawIcon: own && ((x, y, c) => octicon(own, x, y, 16, c)),
       label: q.get('label') ?? found?.title ?? 'badge',

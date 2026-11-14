@@ -2,12 +2,13 @@
 // languages, and the last year of contributions underneath
 
 import type { Day, Language, Profile } from '../github';
-import { doc, fit, group, round, text, textWidth, type Weight } from '../svg';
 import { streaks } from '../streak';
+import type { Style } from '../style';
+import { doc, group, round, text, type Weight } from '../svg';
 import type { Theme } from '../theme';
 
 export interface ProfileOptions {
-  theme: Theme;
+  style: Style;
   /** The contribution graph underneath */
   graph: boolean;
   langs: number;
@@ -47,12 +48,12 @@ function overview(p: Profile, x: number, width: number, theme: Theme) {
   return out;
 }
 
-function streak(p: Profile, x: number, width: number, theme: Theme) {
+function streak(p: Profile, x: number, width: number, { theme, font }: Style) {
   const { current, longest, total } = streaks(p.days);
   let out = heading(x, 84, 'Current streak', theme);
   const number = String(current.length);
   out += text(x - 2, 146, number, { size: 52, weight: 800, fill: theme.accent, spacing: -1.5 });
-  out += text(x + number.length * 52 * 0.6 - number.length * 1.5 + 6, 146, current.length === 1 ? 'day' : 'days', { size: 14, weight: 500, fill: theme.muted });
+  out += text(x - 2 + font.width(number, 52, 800, -1.5) + 8, 146, current.length === 1 ? 'day' : 'days', { size: 14, weight: 500, fill: theme.muted });
 
   const lastActive = [...p.days].reverse().find((d) => d.count > 0);
   const since =
@@ -105,7 +106,7 @@ export function lastYear(days: Day[]) {
 }
 
 function languages(p: Profile, x: number, width: number, options: ProfileOptions) {
-  const { theme } = options;
+  const { theme, font } = options.style;
   const shown = topLanguages(p, options);
 
   let out = heading(x, 84, 'Top languages', theme);
@@ -124,7 +125,7 @@ function languages(p: Profile, x: number, width: number, options: ProfileOptions
   shown.forEach((l, i) => {
     const y = 130 + i * rowStep;
     out += `<circle cx="${x + 4}" cy="${y - 4}" r="4" fill="${l.color}"/>`;
-    out += text(x + 16, y, fit(l.name, 13, width - 70), { size: 13, fill: theme.fg });
+    out += text(x + 16, y, font.fit(l.name, 13, width - 70), { size: 13, fill: theme.fg });
     out += text(x + width, y, percent(l.share), { size: 13, fill: theme.muted, anchor: 'end' });
   });
   return out;
@@ -136,7 +137,7 @@ function levelOf(count: number, max: number) {
   return Math.min(4, Math.ceil((count / max) * 4)) as 1 | 2 | 3 | 4;
 }
 
-function graph(days: Day[], y: number, theme: Theme) {
+function graph(days: Day[], y: number, { theme, font }: Style) {
   const shown = lastYear(days);
   if (shown.length === 0) return { body: '', height: 0 };
   const year = shown.reduce((s, d) => s + d.count, 0);
@@ -169,7 +170,7 @@ function graph(days: Day[], y: number, theme: Theme) {
   // Less ... more
   // Close under the graph, as GitHub has it
   const legendY = top + 7 * (cell + gap) + 7;
-  const moreX = W - PAD - textWidth('more', 10);
+  const moreX = W - PAD - font.width('more', 10);
   const lx = moreX - 8 - 5 * 13 + 3;
   out += text(lx - 8, legendY + 9, 'less', { size: 10, fill: theme.muted, anchor: 'end' });
   theme.levels.forEach((color, i) => {
@@ -180,7 +181,8 @@ function graph(days: Day[], y: number, theme: Theme) {
 }
 
 export function profileCard(p: Profile, options: ProfileOptions) {
-  const { theme } = options;
+  const { style } = options;
+  const { theme, font } = style;
   const inner = W - PAD * 2;
   // Three columns with a divider between each
   const cols = [
@@ -191,24 +193,24 @@ export function profileCard(p: Profile, options: ProfileOptions) {
 
   let body = '';
   body += text(PAD, 44, `@${p.login}`, { size: 15, weight: 800, fill: theme.fg });
-  body += text(PAD + p.login.length * 9 + 9 + 12, 44, 'on GitHub', { size: 12, fill: theme.muted });
+  body += text(PAD + font.width(`@${p.login}`, 15, 800) + 12, 44, 'on GitHub', { size: 12, fill: theme.muted });
   body += text(W - PAD, 44, `since ${new Date(p.createdAt).getUTCFullYear()}`, { size: 11, weight: 700, fill: theme.accent, anchor: 'end', spacing: 1 });
   body += `<line x1="${PAD}" y1="60" x2="${W - PAD}" y2="60" stroke="${theme.line}"/>`;
 
   body += overview(p, cols[0].x, cols[0].w, theme);
   body += `<line x1="${cols[1].x - 28}" y1="76" x2="${cols[1].x - 28}" y2="226" stroke="${theme.line}"/>`;
-  body += streak(p, cols[1].x, cols[1].w, theme);
+  body += streak(p, cols[1].x, cols[1].w, style);
   body += `<line x1="${cols[2].x - 28}" y1="76" x2="${cols[2].x - 28}" y2="226" stroke="${theme.line}"/>`;
   body += languages(p, cols[2].x, cols[2].w, options);
 
   let height = 252;
   if (options.graph) {
     body += `<line x1="${PAD}" y1="${height}" x2="${W - PAD}" y2="${height}" stroke="${theme.line}"/>`;
-    const g = graph(p.days, height, theme);
+    const g = graph(p.days, height, style);
     body += g.body;
     height += g.height;
   }
 
   const weights: Weight[] = [400, 500, 700, 800];
-  return doc({ width: W, height: Math.round(height), theme, weights, title: `${p.name}'s GitHub stats`, body });
+  return doc({ width: W, height: Math.round(height), style, weights, title: `${p.name}'s GitHub stats`, body });
 }

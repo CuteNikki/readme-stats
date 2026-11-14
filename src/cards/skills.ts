@@ -2,8 +2,10 @@
 // name on the left and its chips flowing to the right
 
 import type { Icon } from '../icons';
-import { doc, text, textWidth } from '../svg';
-import { readable, type Theme } from '../theme';
+import type { Font } from '../fonts';
+import type { Style } from '../style';
+import { doc, text } from '../svg';
+import { readable } from '../theme';
 
 export interface SkillGroup {
   name: string;
@@ -19,8 +21,8 @@ const CHIP_H = 32;
 const GAP = 8;
 const SIZE = 12.5;
 
-function chip(x: number, y: number, label: string, icon: Icon | undefined, theme: Theme) {
-  const width = chipWidth(label, icon);
+function chip(x: number, y: number, label: string, icon: Icon | undefined, { theme, font }: Style) {
+  const width = chipWidth(label, icon, font);
   let out = `<rect x="${x + 0.5}" y="${y + 0.5}" width="${width - 1}" height="${CHIP_H - 1}" rx="8" fill="${theme.line}" fill-opacity="0.55" stroke="${theme.border}"/>`;
   let tx = x + 11;
   if (icon) {
@@ -31,11 +33,12 @@ function chip(x: number, y: number, label: string, icon: Icon | undefined, theme
   return out;
 }
 
-function chipWidth(label: string, icon: Icon | undefined) {
-  return Math.ceil(11 + (icon ? 15 + 8 : 0) + textWidth(label, SIZE) + 12);
+function chipWidth(label: string, icon: Icon | undefined, font: Font) {
+  return Math.ceil(11 + (icon ? 15 + 8 : 0) + font.width(label, SIZE, 500) + 12);
 }
 
-export function skillsCard(groups: SkillGroup[], theme: Theme, title?: string) {
+export function skillsCard(groups: SkillGroup[], style: Style, title?: string) {
+  const { theme, font } = style;
   const area = W - PAD * 2 - LABEL_W;
   let y = PAD_Y;
   let body = '';
@@ -56,16 +59,16 @@ export function skillsCard(groups: SkillGroup[], theme: Theme, title?: string) {
     let x = 0;
     let rowY = y;
     for (const skill of group.skills) {
-      const width = chipWidth(skill.label, skill.icon);
+      const width = chipWidth(skill.label, skill.icon, font);
       if (x > 0 && x + width > area) {
         x = 0;
         rowY += CHIP_H + GAP;
       }
-      body += chip(PAD + LABEL_W + x, rowY, skill.label, skill.icon, theme);
+      body += chip(PAD + LABEL_W + x, rowY, skill.label, skill.icon, style);
       x += width + GAP;
     }
     y = rowY + CHIP_H;
   });
 
-  return doc({ width: W, height: y + PAD_Y, theme, weights: [500, 700, 800], title: title ?? 'Skills', body });
+  return doc({ width: W, height: y + PAD_Y, style, weights: [500, 700, 800], title: title ?? 'Skills', body });
 }

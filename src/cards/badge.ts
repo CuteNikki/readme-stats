@@ -2,11 +2,12 @@
 // Socials, the view counter, anything that wants to sit in a row of links.
 
 import type { Icon } from '../icons';
-import { doc, text, textWidth } from '../svg';
-import { readable, type Theme } from '../theme';
+import type { Style } from '../style';
+import { doc, text } from '../svg';
+import { readable } from '../theme';
 
 export interface BadgeOptions {
-  theme: Theme;
+  style: Style;
   label: string;
   value?: string;
   /** Quieter text after the value, like when a count started */
@@ -21,7 +22,8 @@ export interface BadgeOptions {
 const H = 34;
 const SIZE = 13;
 
-export function badge({ theme, label, value, note, icon, drawIcon, color }: BadgeOptions) {
+export function badge({ style, label, value, note, icon, drawIcon, color }: BadgeOptions) {
+  const { theme, font } = style;
   const iconColor = color ? readable(`#${color}`, theme) : icon ? readable(`#${icon.hex}`, theme) : theme.accent;
   let x = 13;
   let body = '';
@@ -33,24 +35,24 @@ export function badge({ theme, label, value, note, icon, drawIcon, color }: Badg
     x += 16 + 9;
   }
   body += text(x, 22, label, { size: SIZE, weight: 500, fill: theme.fg });
-  x += textWidth(label, SIZE);
+  x += font.width(label, SIZE, 500);
   if (value) {
     x += 10;
     body += `<line x1="${x}" y1="9" x2="${x}" y2="${H - 9}" stroke="${theme.border}"/>`;
     x += 10;
     body += text(x, 22, value, { size: SIZE, weight: 700, fill: theme.accent });
-    x += textWidth(value, SIZE);
+    x += font.width(value, SIZE, 700);
     if (note) {
       x += 8;
       body += text(x, 22, note, { size: 12, fill: theme.muted });
-      x += textWidth(note, 12);
+      x += font.width(note, 12);
     }
   }
   const width = Math.ceil(x + 14);
   return doc({
     width,
     height: H,
-    theme,
+    style,
     // 700 for the value, and for the letters on Adobe's tiles
     weights: [500, ...(value || icon?.ownColors ? [700 as const] : []), ...(value && note ? [400 as const] : [])],
     title: value ? `${label}: ${value}${note ? ` ${note}` : ''}` : label,
