@@ -1,10 +1,5 @@
 # readme-stats
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/examples/banner-dark.svg">
-  <img src="docs/examples/banner-light.svg" alt="A banner reading: developer and designer, Hey, I'm CuteNikki, Full-stack work, mostly TypeScript" width="100%">
-</picture>
-
 Stats, badges, a skills grid and project cards for a GitHub profile README, all in one matching style and in a dark and a light version.
 
 It replaces separate stats, streak and top-language services with one small Bun server. GitHub's answers are kept in memory and fetched again in the background, so after the first request every card comes back in milliseconds.
@@ -94,7 +89,13 @@ Only public repos of the accounts in `GITHUB_USERS` get a card. Put two side by 
 
 `/banner?label=developer%20%26%20designer&title=Hey%2C%20I'm%20you&subtitle=Full-stack%20work`
 
-The picture at the top of this README. `title=` defaults to "Hey, I'm" and the first account in `GITHUB_USERS`; `label=` and `subtitle=` are left out when not given.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/examples/banner-dark.svg">
+  <img src="docs/examples/banner-light.svg" alt="A banner reading: developer and designer, Hey, I'm CuteNikki, Full-stack work, mostly TypeScript" width="100%">
+</picture>
+
+- `title=` defaults to "Hey, I'm" and the first account in `GITHUB_USERS`
+- `label=` and `subtitle=` are left out when not given.
 
 ### View counter
 
