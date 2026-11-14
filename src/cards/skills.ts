@@ -4,7 +4,7 @@
 import type { Icon } from '../icons';
 import type { Font } from '../fonts';
 import { scales, type Style } from '../style';
-import { doc, line, round, text } from '../svg';
+import { cornerRadius, doc, line, round, text } from '../svg';
 import { readable } from '../theme';
 
 export interface SkillGroup {
@@ -19,14 +19,16 @@ const MAX_LABEL_W = 300;
 /** A chip's measurements at the style's text size */
 function chipSizes(style: Style) {
   const { x: s, cap } = scales(style);
-  return { size: s(12.5), height: s(32), icon: s(15), left: s(11), iconGap: s(8), right: s(12), gap: s(8), baseline: s(16) + s(4.5) * cap };
+  // Rounded as much as the card is, relatively: 8 on the 14 cards have, at most a pill
+  const radius = Math.min((8 * cornerRadius(style)) / 14, s(16));
+  return { radius, size: s(12.5), height: s(32), icon: s(15), left: s(11), iconGap: s(8), right: s(12), gap: s(8), baseline: s(16) + s(4.5) * cap };
 }
 
 type Chip = ReturnType<typeof chipSizes>;
 
 function chip(x: number, y: number, label: string, icon: Icon | undefined, { theme, font, border }: Style, c: Chip) {
   const width = chipWidth(label, icon, font, c);
-  let out = `<rect x="${round(x + 0.5)}" y="${round(y + 0.5)}" width="${width - 1}" height="${round(c.height - 1)}" rx="8" fill="${theme.line}" fill-opacity="0.55"${border ? ` stroke="${theme.border}"` : ''}/>`;
+  let out = `<rect x="${round(x + 0.5)}" y="${round(y + 0.5)}" width="${width - 1}" height="${round(c.height - 1)}" rx="${round(c.radius)}" fill="${theme.line}" fill-opacity="0.55"${border ? ` stroke="${theme.border}"` : ''}/>`;
   let tx = x + c.left;
   if (icon) {
     out += `<g transform="translate(${round(tx)} ${round(y + (c.height - c.icon) / 2)}) scale(${c.icon / 24})">${icon.draw(readable(`#${icon.hex}`, theme), theme)}</g>`;
