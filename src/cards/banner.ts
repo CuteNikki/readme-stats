@@ -1,5 +1,5 @@
 // The README's header: a small label, a big title and a line under it, on a
-// faint grid that fades out towards the edges
+// faint grid that fades out towards the edges, under a glow of the accent
 
 import { scales, type Style } from '../style';
 import { cornerRadius, doc, round, text } from '../svg';
@@ -9,11 +9,15 @@ export interface BannerOptions {
   title: string;
   subtitle?: string;
   label?: string;
+  /** The faint grid behind the text */
+  grid?: boolean;
+  /** The accent's glow in the corner */
+  glow?: boolean;
 }
 
 const W = 880;
 
-export function bannerCard({ style, title, subtitle, label }: BannerOptions) {
+export function bannerCard({ style, title, subtitle, label, grid: showGrid = true, glow: showGlow = true }: BannerOptions) {
   const { theme, font } = style;
   const { t, l, x, p, tc, cap } = scales(style);
   const pad = p(44);
@@ -34,16 +38,20 @@ export function bannerCard({ style, title, subtitle, label }: BannerOptions) {
   for (let gx = step; gx < W; gx += step) grid += `M${gx} 0V${round(H)}`;
   for (let gy = step; gy < H; gy += step) grid += `M0 ${gy}H${W}`;
 
-  let body = `<defs>
-  <radialGradient id="fade" cx="0.72" cy="0.5" r="0.75"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
-  <mask id="m"><rect width="${W}" height="${round(H)}" fill="url(#fade)"/></mask>
-  <clipPath id="c"><rect x="1" y="1" width="${W - 2}" height="${round(H - 2)}" rx="${Math.max(cornerRadius(style) - 1, 0)}"/></clipPath>
-  <radialGradient id="glow" cx="0.85" cy="0.15" r="0.6"><stop offset="0" stop-color="${theme.accent}" stop-opacity="0.16"/><stop offset="1" stop-color="${theme.accent}" stop-opacity="0"/></radialGradient>
-</defs>
-<g clip-path="url(#c)">
-  <rect width="${W}" height="${round(H)}" fill="url(#glow)"/>
-  <path d="${grid}" stroke="${theme.grid}" stroke-width="1" mask="url(#m)"/>
-</g>`;
+  // The background: a glow in one corner and a grid that fades out, either of which can be left out
+  const defs = [
+    showGrid &&
+      `  <radialGradient id="fade" cx="0.72" cy="0.5" r="0.75"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  <mask id="m"><rect width="${W}" height="${round(H)}" fill="url(#fade)"/></mask>`,
+    (showGrid || showGlow) && `  <clipPath id="c"><rect x="1" y="1" width="${W - 2}" height="${round(H - 2)}" rx="${Math.max(cornerRadius(style) - 1, 0)}"/></clipPath>`,
+    showGlow &&
+      `  <radialGradient id="glow" cx="0.85" cy="0.15" r="0.6"><stop offset="0" stop-color="${theme.accent}" stop-opacity="0.16"/><stop offset="1" stop-color="${theme.accent}" stop-opacity="0"/></radialGradient>`,
+  ].filter(Boolean);
+  const layers = [
+    showGlow && `  <rect width="${W}" height="${round(H)}" fill="url(#glow)"/>`,
+    showGrid && `  <path d="${grid}" stroke="${theme.grid}" stroke-width="1" mask="url(#m)"/>`,
+  ].filter(Boolean);
+  let body = defs.length ? `<defs>\n${defs.join('\n')}\n</defs>\n<g clip-path="url(#c)">\n${layers.join('\n')}\n</g>` : '';
 
   let y = top + (full - shown) / 2;
   if (label) {

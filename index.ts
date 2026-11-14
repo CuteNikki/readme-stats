@@ -179,7 +179,14 @@ const server = Bun.serve({
     '/banner': (req) =>
       draw(req, async (style, q) => {
         return svg(
-          bannerCard({ style, title: q.get('title') ?? `Hey, I'm ${config.defaultUser}`, subtitle: q.get('subtitle') ?? undefined, label: q.get('label') ?? undefined }),
+          bannerCard({
+            style,
+            title: q.get('title') ?? `Hey, I'm ${config.defaultUser}`,
+            subtitle: q.get('subtitle') ?? undefined,
+            label: q.get('label') ?? undefined,
+            grid: q.get('grid') !== 'false',
+            glow: q.get('glow') !== 'false',
+          }),
           STATIC_AGE,
           200,
           req,
