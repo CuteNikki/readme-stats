@@ -311,17 +311,34 @@ jobs:
 
 Commits made with the workflow's own token don't start workflows, so it doesn't set itself off.
 
-## Running it
+## Self-hosting
 
-Copy `.env.example` to `.env` and fill in a GitHub token and the accounts it may draw cards for. Then:
+It runs anywhere Docker or Bun does: one small server and no database.
 
-```sh
-docker compose up -d --build
-```
+1. **Get the code**
 
-or, without Docker, `bun install` and `bun run dev`.
+   ```sh
+   git clone https://github.com/CuteNikki/readme-stats.git
+   cd readme-stats
+   ```
 
-Put it behind a reverse proxy with HTTPS: GitHub only loads images over HTTPS. `/health` answers `ok` for uptime checks.
+2. **Make a GitHub token.** At [github.com/settings/tokens](https://github.com/settings/tokens), make a classic token with `read:user`, and `repo` too if private contributions should count. It's only ever sent to GitHub.
+
+3. **Fill in `.env`.** Copy `.env.example` to `.env`, then set `GITHUB_TOKEN` and `GITHUB_USERS`, the accounts it draws cards for. Everything else has a default, see [Configuration](#configuration).
+
+4. **Start it**
+
+   ```sh
+   docker compose up -d --build
+   ```
+
+   or, without Docker, `bun install` and `bun run start` (`bun run dev` restarts on changes). It listens on port 3000; `/` shows every card, a builder for their links and the gallery.
+
+5. **Put it behind HTTPS.** GitHub only loads images over HTTPS, so point a domain at it through any reverse proxy. `/health` answers `ok` for uptime checks.
+
+6. **Use your domain** in the cards' links, in place of `stats.example.com` in the examples here, or copy them from the builder on your own `/`.
+
+To update, pull and rebuild: `git pull && docker compose up -d --build`. The view counter's count and the fonts fetched from Google are kept in `./data`, so they survive it.
 
 ### Configuration
 
