@@ -80,6 +80,10 @@ const server = Bun.serve({
     '/': () => new Response(page(), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' } }),
     '/site.css': new Response(Bun.file('src/site/site.css'), { headers: { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': 'no-cache' } }),
     '/site.js': new Response(Bun.file('src/site/site.js'), { headers: { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' } }),
+    '/favicon.svg': new Response(Bun.file('src/site/favicon.svg'), { headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': `public, max-age=${STATIC_AGE * 24}` } }),
+    // What browsers ask for without being told: a PNG serves, whatever the name says
+    '/favicon.ico': new Response(Bun.file('src/site/favicon-32.png'), { headers: { 'Content-Type': 'image/png', 'Cache-Control': `public, max-age=${STATIC_AGE * 24}` } }),
+    '/apple-touch-icon.png': new Response(Bun.file('src/site/apple-touch-icon.png'), { headers: { 'Content-Type': 'image/png', 'Cache-Control': `public, max-age=${STATIC_AGE * 24}` } }),
     '/fonts/:file': (req) => {
       const file = req.params.file;
       if (!/^JetBrainsMono-[A-Za-z]+\.woff2$/.test(file)) return new Response('Not found', { status: 404 });
