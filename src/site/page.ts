@@ -18,6 +18,7 @@ const lucide = {
   check: '<path d="M20 6 9 17l-5-5"/>',
   pencil: '<path d="M21.17 6.81a2.83 2.83 0 0 0-4-4L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z"/>',
   arrow: '<path d="M5 12h14M12 5l7 7-7 7"/>',
+  link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
 };
 
 function svgIcon(name: keyof typeof lucide, className = 'icon') {
@@ -31,8 +32,9 @@ function card(path: string, alt: string, width: number, height: number, classNam
   return `<img class="card-img ${className}" data-card="${escape(path)}" alt="${escape(alt)}" width="${width}" height="${height}">`;
 }
 
-function copyButton(label = 'Copy') {
-  return `<button type="button" class="btn btn-ghost btn-sm copy" data-copy>${svgIcon('copy', 'icon when-idle')}${svgIcon('check', 'icon when-done')}<span>${label}</span></button>`;
+/** what is snippet or link: the README snippet, or the builder's own address */
+function copyButton(what: 'snippet' | 'link', label: string, icon: keyof typeof lucide = 'copy') {
+  return `<button type="button" class="btn btn-ghost btn-sm copy" data-copy="${what}">${svgIcon(icon, 'icon when-idle')}${svgIcon('check', 'icon when-done')}<span>${label}</span></button>`;
 }
 
 export function page() {
@@ -190,9 +192,12 @@ export function page() {
         <div class="panel preview-panel">
           <div class="panel-bar">
             <span class="panel-title">Preview</span>
-            <div class="segmented" role="radiogroup" aria-label="Preview theme" id="preview-theme">
-              <button type="button" role="radio" data-value="dark">Dark</button>
-              <button type="button" role="radio" data-value="light">Light</button>
+            <div class="panel-actions">
+              ${copyButton('link', 'Share', 'link')}
+              <div class="segmented" role="radiogroup" aria-label="Preview theme" id="preview-theme">
+                <button type="button" role="radio" data-value="dark">Dark</button>
+                <button type="button" role="radio" data-value="light">Light</button>
+              </div>
             </div>
           </div>
           <div class="preview surface" id="preview"><img id="preview-img" alt="Preview of the card"></div>
@@ -203,7 +208,7 @@ export function page() {
               <button type="button" role="radio" data-value="html">README</button>
               <button type="button" role="radio" data-value="url">Link</button>
             </div>
-            ${copyButton()}
+            ${copyButton('snippet', 'Copy')}
           </div>
           <pre class="code" id="snippet" tabindex="0"></pre>
         </div>

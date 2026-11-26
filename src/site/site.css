@@ -404,6 +404,21 @@ summary:focus-visible {
   padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
   border-bottom: 1px solid var(--border);
 }
+.panel-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+/* On a phone the preview's buttons need the whole bar */
+@media (max-width: 26rem) {
+  .preview-panel .panel-title {
+    display: none;
+  }
+  .preview-panel .panel-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
 .panel-title {
   font: 700 0.75rem var(--font-mono);
   text-transform: uppercase;

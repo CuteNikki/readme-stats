@@ -388,7 +388,7 @@ segmented(
 function setPreviewTheme(value) {
   state.previewTheme = value;
   paintPreviewTheme();
-  update(true);
+  update(true, true);
 }
 
 // Preview and snippet
@@ -419,11 +419,21 @@ function renderPreview() {
   next.src = src;
 }
 
-function update(now) {
+/** The builder's link, so a card being built can be shared or bookmarked */
+function shareHash() {
+  return `#${withTheme(cardPath(), state.previewTheme)}`;
+}
+
+/** Whether the card was changed since the page opened: until then the address stays clean */
+let touched = false;
+
+function update(now, quiet = false) {
   renderSnippet();
   clearTimeout(timer);
   if (now) renderPreview();
   else timer = setTimeout(renderPreview, 350);
+  if (!quiet) touched = true;
+  if (touched && location.hash !== shareHash()) history.replaceState(null, '', shareHash());
 }
 
 // Copy buttons
@@ -431,16 +441,20 @@ function update(now) {
 document.addEventListener('click', async (event) => {
   const button = event.target.closest('[data-copy]');
   if (!button) return;
+  const link = button.dataset.copy === 'link';
+  const label = button.querySelector('span');
+  label.dataset.idle ??= label.textContent;
   try {
-    await navigator.clipboard.writeText(snippet());
+    if (link) history.replaceState(null, '', shareHash());
+    await navigator.clipboard.writeText(link ? location.href : snippet());
     button.classList.add('done');
-    button.querySelector('span').textContent = 'Copied';
+    label.textContent = 'Copied';
     setTimeout(() => {
       button.classList.remove('done');
-      button.querySelector('span').textContent = 'Copy';
+      label.textContent = label.dataset.idle;
     }, 1500);
   } catch {
-    getSelection().selectAllChildren(snippetEl);
+    if (!link) getSelection().selectAllChildren(snippetEl);
   }
 });
 
@@ -495,7 +509,14 @@ document.addEventListener('click', (event) => {
   if (button) load(button.dataset.edit);
 });
 
+// A shared link: #/card?user=...&theme=light
+function fromHash() {
+  if (location.hash.startsWith('#/') && location.hash !== shareHash()) load(location.hash.slice(1));
+}
+addEventListener('hashchange', fromHash);
+
 paintCards();
 renderTabs();
 renderFields();
-update(true);
+update(true, true);
+fromHash();
