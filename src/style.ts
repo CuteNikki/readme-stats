@@ -68,7 +68,7 @@ function colorsFrom(q: URLSearchParams) {
     // border=false is the outline, not a colour
     if (value === null || (key === 'border' && NO.has(value))) continue;
     const hex = hexColor(value);
-    if (!hex) throw new Problem(key === 'border' ? 'border= takes a hex colour or false' : `${key}= takes a hex colour, like ${key}=a78bfa`, 400);
+    if (!hex) throw new Problem(key === 'border' ? 'border= takes a hex colour or false' : `${key}= takes a hex colour, like ${key}=a78bfa, or a78bfa80 to see through it`, 400);
     colors[color] = hex;
   }
   return colors;

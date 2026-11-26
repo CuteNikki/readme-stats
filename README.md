@@ -159,7 +159,7 @@ Every card takes the same options for how it looks, on top of `theme=`.
 | Option | What it does |
 | --- | --- |
 | `font=Inter` | Any family on [Google Fonts](https://fonts.google.com), by its name (`font=Space+Mono`). Proportional fonts work too: text is measured from the font itself, so it's fitted and cut off the same. JetBrains Mono when left out. |
-| `bg=` `text=` `muted=` `accent=` `border=` | Colours, as hex without the `#` (`accent=ec4899`). |
+| `bg=` `text=` `muted=` `accent=` `border=` | Colours, as hex without the `#` (`accent=ec4899`). Two more digits make one see-through, from `00` (invisible) to `ff` (`bg=12121800`). |
 | `border=false` | No outline around the card, or around the skills' chips. |
 | `dividers=false` | No lines inside the card: under the profile card's name, between its columns and above its graph, between skill groups, and in a badge. |
 | `radius=20` | Corner rounding in pixels, from 0 to 40. Cards have 14 and badges 10 otherwise. |
@@ -170,7 +170,7 @@ Every card takes the same options for how it looks, on top of `theme=`.
 
 Sizes and padding take `xs`, `sm`, `md`, `lg` or `xl`, where `md` is the card as designed. Bigger text pushes what's under it down and makes the card taller rather than running into it, and text that doesn't fit in its place is cut off with an ellipsis.
 
-Colours that aren't given are mixed from those that are: the dividers from the background and text, the contribution graph and chips from the background and accent. A background on its own keeps text that can be read on it, so `bg=0b1021` on the light theme gets light text. To give the dark and light versions different colours, put different colours in each link of the `<picture>`.
+Colours that aren't given are mixed from those that are: the dividers from the background and text, the contribution graph and chips from the background and accent. On a see-through background they're the text and accent colours, see-through by as much, so they look the same on any page; for a card with no background at all, `bg=0000` and `border=false`. A background on its own keeps text that can be read on it, so `bg=0b1021` on the light theme gets light text. To give the dark and light versions different colours, put different colours in each link of the `<picture>`.
 
 The first card in a font fetches it from Google, which takes a moment; after that it's kept in `DATA_DIR`. A font name Google doesn't have, or an option that can't be drawn, is said on the card itself.
 

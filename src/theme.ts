@@ -51,19 +51,54 @@ export function pickTheme(value: string | null): Theme {
   return value === 'light' ? themes.light : themes.dark;
 }
 
-/** "abc", "#abc" or "aabbcc" as "#aabbcc", or undefined if it isn't a hex colour */
+/**
+ * "abc", "abcd", "aabbcc" or "aabbccdd", with or without "#", as "#aabbcc", or
+ * "#aabbccdd" when it's see-through, or undefined if it isn't a hex colour
+ */
 export function hexColor(value: string) {
-  const hex = value.trim().replace(/^#/, '').toLowerCase();
-  if (/^[0-9a-f]{3}$/.test(hex)) return `#${[...hex].map((c) => c + c).join('')}`;
-  if (/^[0-9a-f]{6}$/.test(hex)) return `#${hex}`;
-  return undefined;
+  let hex = value.trim().replace(/^#/, '').toLowerCase();
+  if (!/^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.test(hex)) return undefined;
+  if (hex.length <= 4) hex = [...hex].map((c) => c + c).join('');
+  // Fully opaque is the plain colour, so the link that says ff draws the same card
+  return `#${hex.length === 8 && hex.endsWith('ff') ? hex.slice(0, 6) : hex}`;
 }
 
-/** The colour t of the way from a to b */
+interface Rgba {
+  r: number;
+  g: number;
+  b: number;
+  /** From 0 to 1 */
+  a: number;
+}
+
+function rgba(hex: string): Rgba {
+  const n = Number.parseInt(hex.slice(1, 7), 16);
+  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255, a: hex.length === 9 ? Number.parseInt(hex.slice(7), 16) / 255 : 1 };
+}
+
+function toHex({ r, g, b, a }: Rgba) {
+  const byte = (v: number) => Math.round(v).toString(16).padStart(2, '0');
+  return `#${byte(r)}${byte(g)}${byte(b)}${a < 1 ? byte(a * 255) : ''}`;
+}
+
+/** The colour on top as it looks over the one below, which is opaque */
+function over(top: string, below: string) {
+  const t = rgba(top);
+  const u = rgba(below);
+  return toHex({ r: t.r * t.a + u.r * (1 - t.a), g: t.g * t.a + u.g * (1 - t.a), b: t.b * t.a + u.b * (1 - t.a), a: 1 });
+}
+
+/**
+ * The colour t of the way from a card's background a to b, for something drawn
+ * on that background. On a see-through background it's b itself, see-through
+ * by as much, so it looks the same over whatever page is behind the card.
+ */
 function mix(a: string, b: string, t: number) {
-  const [x, y] = [a, b].map((c) => Number.parseInt(c.slice(1), 16));
-  const channel = (shift: number) => Math.round(((x! >> shift) & 255) * (1 - t) + ((y! >> shift) & 255) * t);
-  return `#${((channel(16) << 16) | (channel(8) << 8) | channel(0)).toString(16).padStart(6, '0')}`;
+  const bg = rgba(a);
+  const top = rgba(b);
+  if (bg.a < 1) return toHex({ ...top, a: top.a * t });
+  const y = rgba(over(b, a));
+  return toHex({ r: bg.r * (1 - t) + y.r * t, g: bg.g * (1 - t) + y.g * t, b: bg.b * (1 - t) + y.b * t, a: 1 });
 }
 
 export interface Colors {
@@ -83,7 +118,8 @@ export function customTheme(base: Theme, colors: Colors): Theme {
   if (Object.values(colors).every((c) => c === undefined)) return base;
   const bg = colors.bg ?? base.bg;
   // A dark bg on the light theme keeps light text rather than its own dark text, and the other way round
-  const fg = colors.fg ?? (contrast(base.fg, bg) >= 4.5 ? base.fg : [themes.dark.fg, themes.light.fg].sort((a, b) => contrast(b, bg) - contrast(a, bg))[0]!);
+  const solid = over(bg, themes[base.name].bg);
+  const fg = colors.fg ?? (contrast(base.fg, solid) >= 4.5 ? base.fg : [themes.dark.fg, themes.light.fg].sort((a, b) => contrast(b, solid) - contrast(a, solid))[0]!);
   const accent = colors.accent ?? base.accent;
   const theme: Theme = { ...base, bg, fg, accent, levels: [...base.levels] };
   if (colors.bg || colors.fg) {
@@ -103,14 +139,15 @@ export function customTheme(base: Theme, colors: Colors): Theme {
 }
 
 function luminance(hex: string) {
-  const n = Number.parseInt(hex.replace('#', ''), 16);
+  const { r, g, b } = rgba(hex);
   const channel = (c: number) => {
     const s = c / 255;
     return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
   };
-  return 0.2126 * channel((n >> 16) & 255) + 0.7152 * channel((n >> 8) & 255) + 0.0722 * channel(n & 255);
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
 }
 
+/** Between two opaque colours */
 export function contrast(a: string, b: string) {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
   return (hi + 0.05) / (lo + 0.05);
@@ -122,5 +159,7 @@ export function contrast(a: string, b: string) {
  * light one. Those fall back to the text colour.
  */
 export function readable(color: string, theme: Theme, min = 1.8) {
-  return contrast(color, theme.bg) >= min ? color : theme.fg;
+  // A see-through card is taken to be on its theme's own background
+  const bg = over(theme.bg, themes[theme.name].bg);
+  return contrast(over(color, bg), bg) >= min ? color : theme.fg;
 }
