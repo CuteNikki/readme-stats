@@ -162,7 +162,7 @@ export function page() {
       <p class="lead">Profile, project, skills, badges, a banner and a view counter. Every card comes in dark and light, in any Google font and colour, and loads in milliseconds.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#builder">Build a card ${svgIcon('arrow')}</a>
-        <a class="btn btn-outline" href="${REPO}">${github} Host your own</a>
+        <a class="btn btn-outline" href="${REPO}#self-hosting">${github} Host your own</a>
       </div>
     </div>
     <figure class="readme" aria-label="A README made from these cards">
@@ -268,8 +268,11 @@ export function page() {
         <h2>Host your own</h2>
         <p>One small Bun server with a GitHub token. GitHub's answers are kept in memory and refreshed in the background, so cards come back in milliseconds.</p>
       </div>
-      <pre class="code">cp .env.example .env
+      <div class="host-steps">
+        <pre class="code">cp .env.example .env
 docker compose up -d --build</pre>
+        <a class="btn btn-outline" href="${REPO}#self-hosting">Self-hosting guide ${svgIcon('arrow')}</a>
+      </div>
     </div>
   </section>
 </main>
