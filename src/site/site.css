@@ -49,6 +49,8 @@
   --control: 2.25rem;
   --wrap: 72rem;
   --gutter: var(--space-4);
+  /* Behind see-through colours */
+  --checker: repeating-conic-gradient(var(--muted) 0 25%, var(--background) 0 50%) 0 0 / 0.5rem 0.5rem;
 
   color-scheme: light;
 }
@@ -489,7 +491,8 @@ summary:focus-visible {
 
 .fields {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Six columns: a field takes all, half (.half) or a third (.third) */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--space-3);
   margin: 0;
   padding: 0;
@@ -499,11 +502,14 @@ summary:focus-visible {
 .field {
   display: grid;
   gap: var(--space-1);
-  grid-column: span 2;
+  grid-column: span 6;
   min-width: 0;
 }
 .field.half {
-  grid-column: span 1;
+  grid-column: span 3;
+}
+.field.third {
+  grid-column: span 2;
 }
 .field > span,
 .field-label {
@@ -546,7 +552,7 @@ select.input {
   color: var(--muted-foreground);
 }
 
-/* A hex field with a swatch that opens the colour picker */
+/* A hex field with a swatch over the colour picker, see-through colours over a checkerboard */
 .color {
   position: relative;
 }
@@ -555,37 +561,104 @@ select.input {
   font-family: var(--font-mono);
   font-size: 0.8125rem;
 }
-.color input[type='color'] {
+.color input[type='color'],
+.color .swatch {
   position: absolute;
   left: var(--space-1);
   top: var(--space-1);
   width: calc(var(--control) - var(--space-2));
   height: calc(var(--control) - var(--space-2));
-  padding: 0;
-  border: 1px solid var(--border);
   border-radius: calc(var(--radius-sm) - 0.125rem);
-  background: none;
+}
+.color input[type='color'] {
+  padding: 0;
+  border: 0;
+  opacity: 0;
   cursor: pointer;
 }
-.color input[type='color']::-webkit-color-swatch-wrapper {
-  padding: 0;
+.color .swatch {
+  border: 1px solid var(--border);
+  background: linear-gradient(var(--swatch, transparent), var(--swatch, transparent)), var(--checker);
+  pointer-events: none;
 }
-.color input[type='color']::-webkit-color-swatch {
-  border: 0;
-  border-radius: calc(var(--radius-sm) - 0.1875rem);
+.color input[type='color']:focus-visible + .swatch {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
-.color input[type='color']::-moz-color-swatch {
-  border: 0;
-  border-radius: calc(var(--radius-sm) - 0.1875rem);
+
+/* Each colour for dark and light */
+.split-colors {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: center;
 }
-.color.unset input[type='color'] {
-  background: repeating-conic-gradient(var(--muted) 0 25%, var(--background) 0 50%) 0 0 / 0.5rem 0.5rem;
+.split-colors .field-label {
+  padding-right: var(--space-1);
 }
-.color.unset input[type='color']::-webkit-color-swatch {
-  opacity: 0;
+@media (max-width: 26rem) {
+  .split-colors {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .split-colors .field-label {
+    grid-column: 1 / -1;
+  }
+  .split-spacer {
+    display: none;
+  }
 }
-.color.unset input[type='color']::-moz-color-swatch {
-  opacity: 0;
+
+/* Presets */
+.presets-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.preset {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  height: var(--control);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--background);
+  color: inherit;
+  font: 500 0.8125rem var(--font-sans);
+  cursor: pointer;
+}
+.preset:hover {
+  background: var(--muted);
+}
+.preset:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.preset > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dots {
+  display: flex;
+  flex: none;
+}
+.dots i {
+  width: 0.875rem;
+  height: 0.875rem;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: linear-gradient(var(--c), var(--c)), var(--checker);
+}
+.dots i + i {
+  margin-left: -0.3rem;
 }
 
 /* Switches */
