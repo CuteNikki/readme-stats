@@ -13,7 +13,7 @@ import { defaultStyle, STYLE_KEYS, styleFrom, type Style } from './src/style';
 import { hexColor, pickTheme } from './src/theme';
 import { streaks, type Run } from './src/streak';
 import { countView, viewCount } from './src/views';
-import { preview } from './src/preview';
+import { page } from './src/site/page';
 
 /**
  * Query keys every route takes, so /skills doesn't read them as a group. v does
@@ -77,7 +77,14 @@ async function draw(req: Request, run: (style: Style, q: URLSearchParams) => Pro
 const server = Bun.serve({
   port: config.port,
   routes: {
-    '/': () => new Response(preview(), { headers: { 'Content-Type': 'text/html; charset=utf-8' } }),
+    '/': () => new Response(page(), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' } }),
+    '/site.css': new Response(Bun.file('src/site/site.css'), { headers: { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': 'no-cache' } }),
+    '/site.js': new Response(Bun.file('src/site/site.js'), { headers: { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache' } }),
+    '/fonts/:file': (req) => {
+      const file = req.params.file;
+      if (!/^JetBrainsMono-[A-Za-z]+\.woff2$/.test(file)) return new Response('Not found', { status: 404 });
+      return new Response(Bun.file(`fonts/${file}`), { headers: { 'Content-Type': 'font/woff2', 'Cache-Control': `public, max-age=${STATIC_AGE * 24 * 7}` } });
+    },
     '/health': () => new Response('ok'),
 
     '/card': (req) =>

@@ -18,7 +18,7 @@ It replaces separate stats, streak and top-language services with one small Bun 
 
 Every card takes `?theme=dark` or `?theme=light` (dark is the default), and its font, colours, corners and text sizes can be changed too: see [Styling](#styling). `user=` can be left out and means the first account in `GITHUB_USERS`. `v=` does nothing, so changing it gives a card a new link: GitHub's image proxy keeps a card up to the time it says, so after changing the look, bump `v` to show it straight away.
 
-Open `/` on the server for a preview of every card in both themes. The pictures below are in [`docs/examples`](docs/examples).
+Open `/` on the server for a page with every card, a builder that writes the README snippet for one, and the gallery below. The pictures below are in [`docs/examples`](docs/examples).
 
 ### Profile card
 
