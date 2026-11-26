@@ -141,7 +141,7 @@ export function page() {
 <body>
 <header class="top">
   <div class="wrap top-inner">
-    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span>readme-stats</a>
+    <a class="brand" href="/"><img class="brand-mark" src="/favicon.svg" alt="" width="18" height="18">readme-stats</a>
     <nav class="nav" aria-label="Sections">
       <a href="#builder">Builder</a>
       <a href="#cards">Cards</a>

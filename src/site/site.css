@@ -171,11 +171,10 @@ pre {
   text-decoration: none;
   letter-spacing: -0.02em;
 }
+/* The favicon */
 .brand-mark {
   width: 1.125rem;
   height: 1.125rem;
-  border-radius: 0.3rem;
-  background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 45%, var(--background)));
 }
 .nav {
   display: none;
