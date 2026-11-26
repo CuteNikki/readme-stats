@@ -34,7 +34,7 @@ dark.addEventListener('change', () => {
 // Builder
 
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'];
-const FONTS = ['JetBrains Mono', 'Inter', 'Geist', 'Outfit', 'Sora', 'Manrope', 'Lexend', 'Space Grotesk', 'Space Mono', 'IBM Plex Mono', 'Fira Code', 'Fredoka', 'Nunito', 'Playfair Display', 'DM Serif Display', 'Orbitron', 'VT323'];
+const FONTS = ['JetBrains Mono', 'Inter', 'Geist', 'Outfit', 'Sora', 'Manrope', 'Lexend', 'Space Grotesk', 'Space Mono', 'IBM Plex Mono', 'Fira Code', 'Fredoka', 'Nunito', 'Lora', 'Source Serif 4', 'Playfair Display', 'DM Serif Display', 'Orbitron', 'VT323'];
 
 const userField = { key: 'user', label: 'Account', type: 'select', options: users, default: users[0] };
 
@@ -196,7 +196,8 @@ const PRESETS = [
   },
   {
     name: 'Minimal',
-    style: { font: 'DM Serif Display', border: false, dividers: false },
+    // A serif made for text: DM Serif Display, the gallery's, is for headlines and smears at a card's small sizes
+    style: { font: 'Lora', border: false, dividers: false },
     dark: { accent: 'f5f5f5' },
     light: { accent: '111111' },
   },
