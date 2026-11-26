@@ -4,6 +4,8 @@ Stats, badges, a skills grid and project cards for a GitHub profile README, all 
 
 It replaces separate stats, streak and top-language services with one small Bun server. GitHub's answers are kept in memory and fetched again in the background, so after the first request every card comes back in milliseconds.
 
+**Try it:** the website linked in this repo's About box runs it, with a [builder](#builder) that previews any card as you change it and writes the snippet for your README. It only draws its owner's cards; for your own, [host a copy](#self-hosting), which comes with the same builder.
+
 ## Cards
 
 | Path | What it draws |
@@ -18,7 +20,7 @@ It replaces separate stats, streak and top-language services with one small Bun 
 
 Every card takes `?theme=dark` or `?theme=light` (dark is the default), and its font, colours, corners and text sizes can be changed too: see [Styling](#styling). `user=` can be left out and means the first account in `GITHUB_USERS`. `v=` does nothing, so changing it gives a card a new link: GitHub's image proxy keeps a card up to the time it says, so after changing the look, bump `v` to show it straight away.
 
-Open `/` on the server for a page with every card, a builder that writes the README snippet for one, and the gallery below. The pictures below are in [`docs/examples`](docs/examples).
+Open `/` on the server for every card, the [builder](#builder) and the gallery below. The pictures below are in [`docs/examples`](docs/examples).
 
 ### Profile card
 
@@ -237,6 +239,17 @@ DM Serif Display with no grid, glow or border, so it sits in the page like a hea
 ```
 /banner?font=DM+Serif+Display&theme=light&accent=111111&grid=false&glow=false&border=false&title-size=xl&label-size=sm&label=designer%20%26%20developer&title=you&subtitle=I%20make%20small%2C%20careful%20things%20for%20the%20web
 ```
+
+## Builder
+
+The server's own page, `/`, has a builder for every card, so the links don't have to be written by hand:
+
+- **Live preview** of the card as its options change, in the dark or the light version.
+- **Presets** to start from, and a **Random** button that makes up a font, corners and a palette for both themes.
+- **Separate dark and light colours**, each version's going in its own link of the `<picture>`.
+- **See-through colours**, shown over a checkerboard.
+- **The snippet** to paste into a README, `<picture>` and all, or just the link, with a copy button.
+- **Share**: the address keeps the card being built, so it can be bookmarked or sent. **Edit** on any card or gallery look on the page opens it in the builder.
 
 ## Using it in a README
 
